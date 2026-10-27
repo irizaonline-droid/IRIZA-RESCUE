@@ -38,7 +38,7 @@ export async function createApp({port=Number(process.env.PORT||4310),dataDir=pat
     if(host!==expected && host!==`localhost:${server.address().port}` && !(publicOrigin&&host===new URL(publicOrigin).host))return json(res,403,{error:'Invalid host'});
     const url=new URL(req.url,`http://${host}`);
     if(req.method==='GET'&&url.pathname==='/auth/session'){try{return json(res,200,await sharedAuth.session(req.headers.cookie));}catch{return json(res,503,{enabled:sharedAuth.enabled,authenticated:false,authorized:false,error:'IRIZA identity service is unavailable',...authLinks()});}}
-    if(req.method==='GET'&&['/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){const destination=/register|regiter|sign-up/.test(url.pathname)?authLinks().register:authLinks().signin;res.writeHead(302,{Location:destination});res.end();return;}
+    if(req.method==='GET'&&['/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){if(!sharedAuth.enabled)return json(res,503,{error:'RESCUE account sign-in is not configured. The IRIZA TASTE project remains unchanged.'});const destination=/register|regiter|sign-up/.test(url.pathname)?authLinks().register:authLinks().signin;res.writeHead(302,{Location:destination});res.end();return;}
 
     try{
       const preview=url.pathname.match(/^\/preview\/([0-9a-f-]{36})\/(health|checkout)?$/);

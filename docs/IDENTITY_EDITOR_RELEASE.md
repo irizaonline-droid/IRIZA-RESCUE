@@ -1,3 +1,7 @@
+# Scope correction
+
+Owner subsequently instructed that IRIZA TASTE must remain untouched. The two parent auth-return modifications below were reversed, and shared identity is not enabled. Do not deploy or reapply that parent patch. See SCOPE_CORRECTION.md.
+
 # Identity and workstation increment
 
 Implemented locally: CodeMirror 6 with line numbers, syntax highlighting (JS/TS/Python/JSON/HTML/CSS/Markdown), folding, search, bracket matching, indentation and undo. All dependencies are bundled locally; editor changes use the existing revision-bound sandbox Save API. CSP permits editor-generated styles through a per-response nonce, not unsafe-inline.

@@ -7,3 +7,8 @@
 - Supplied books/specifications are in docs/reference (originals under D:/IRIZA TASTE/IRIZA TASTE NEW PROJET/RESCUE). Continue the existing C: workspace unless the owner explicitly asks to migrate it. Newer owner domain/path instructions override older text in reference books.
 - Preserve approval-controlled, fixed-action lab recovery. Never treat a public URL as authorization to repair a service.
 - Do not copy credentials or proprietary source from the parent IRIZA TASTE project.
+
+## Latest owner boundary
+
+- Do not edit, deploy, migrate, repair or change the parent IRIZA TASTE project or its database/authentication. Owner explicitly instructed to leave everything about TASTE alone. RESCUE remains its own nested project.
+- Prior RESCUE auth-return additions in two parent TASTE files were exactly reversed. Do not reapply them. Shared TASTE sign-in preparation is paused, not live.
