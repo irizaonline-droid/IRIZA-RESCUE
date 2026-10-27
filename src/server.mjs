@@ -19,8 +19,8 @@ import {DevOps} from './devops.mjs';
 import {Scanner} from './scanner.mjs';
 import {subscribeMeta,metaStatus,restoreMetaBudget,metaCompletion} from './meta-client.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
-export async function createApp({port=Number(process.env.PORT||4310),dataDir=path.join(root,'data'),token:givenToken,metaTransport=fetch,metaApiKey=process.env.MODEL_API_KEY||process.env.META_AI_API}={}) {
-  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!sharedAuth.enabled)throw Error('Configure RESCUE_ALLOWED_EMAILS before exposing the administrator workspace');
+export async function createApp({port=Number(process.env.PORT||4310),dataDir=process.env.RESCUE_DATA_DIR||path.join(root,'data'),token:givenToken,metaTransport=fetch,metaApiKey=process.env.MODEL_API_KEY||process.env.META_AI_API}={}) {
+  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!sharedAuth.enabled&&!(process.env.RESCUE_AUTH_MODE==='operator'&&process.env.RESCUE_API_TOKEN?.length>=32))throw Error('Public deployment requires configured identity or explicit operator authentication with a strong server token');
   await mkdir(dataDir,{recursive:true});
   let token=givenToken||process.env.RESCUE_API_TOKEN;
   if(!token){try{token=(await readFile(path.join(dataDir,'operator-token'),'utf8')).trim();}catch{token=randomBytes(32).toString('hex');await writeFile(path.join(dataDir,'operator-token'),token,{mode:0o600});}}
@@ -37,6 +37,7 @@ export async function createApp({port=Number(process.env.PORT||4310),dataDir=pat
     const host=req.headers.host;const expected=`127.0.0.1:${server.address().port}`;
     if(host!==expected && host!==`localhost:${server.address().port}` && !(publicOrigin&&host===new URL(publicOrigin).host))return json(res,403,{error:'Invalid host'});
     const url=new URL(req.url,`http://${host}`);
+    if(req.method==='GET'&&url.pathname==='/healthz')return json(res,200,{service:'IRIZA RESCUE',status:'ok',release:process.env.RESCUE_RELEASE||'local',authentication:sharedAuth.enabled?'shared-identity':'operator'});
     if(req.method==='GET'&&url.pathname==='/auth/session'){try{return json(res,200,await sharedAuth.session(req.headers.cookie));}catch{return json(res,503,{enabled:sharedAuth.enabled,authenticated:false,authorized:false,error:'IRIZA identity service is unavailable',...authLinks()});}}
     if(req.method==='GET'&&['/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){if(!sharedAuth.enabled)return json(res,503,{error:'RESCUE account sign-in is not configured. The IRIZA TASTE project remains unchanged.'});const destination=/register|regiter|sign-up/.test(url.pathname)?authLinks().register:authLinks().signin;res.writeHead(302,{Location:destination});res.end();return;}
 

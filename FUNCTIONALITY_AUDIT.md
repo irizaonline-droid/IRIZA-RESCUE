@@ -218,3 +218,13 @@ PASS: Generate AI fix proposal is enabled without imported source and opens guid
 PASS: CodeMirror line numbers and coloured Python source browser-inspected; source remains in sandbox copies. Compact gallery and bounded support layout browser-inspected. 59 RESCUE tests passed, seven parent TASTE auth-return tests passed; shared identity tests use mocked profile responses. Production shared sign-in is NOT VERIFIED; allowed account configuration and healthy TASTE origin are still required. Token fallback is retained until then, not removed from an unauthenticated workspace.
 
 PASS: complete reviewed source uploaded to irizaonline-droid/IRIZA-RESCUE main through the GitHub connector and package.json fetched back by exact commit. CLI push had no credential; connector write succeeded. No private data or .env was uploaded. Latest production observations at 21:03 UTC: iriza.online 502; educo.rw 307 then /en 200; mrcreativist.ca 200. These are observations, not repairs performed by RESCUE. DirectAdmin release, DNS and recurring outage remediation remain BLOCKED on credential-file path, verified target, Node24+ runtime and shared-identity rollout.
+
+
+## DirectAdmin release verification
+
+Origin deployment PASS: dedicated domain, Node24.22.1, remote syntax62modules, API authorization, loopback service and HTTPS Host routing verified. Live remote Meta test200. Full local suite60passed. Public launch FAIL/BLOCKED: Cloudflare public route still reaches Vercel404; dashboard requires sign-in. See docs/DIRECTADMIN_RELEASE_STATUS.md. TASTE remains unchanged. Operator authentication retained; independent user sign-in/registration is not implemented.
+
+
+### Public launch completion
+
+PASS: Cloudflare exact proxied A rescue->69.10.42.26 saved and row verified; wildcard/root unchanged. Public HTTPS /healthz200 matches release20261027T212217Z; root200; editor bundle200; unauthenticated API401; authenticated API200. Browser operator login and sample create/launch executed. Sample998cad1e-6ba5-4b69-b2ce-118e94dc3aa9 has four required checks PASS. Public deployment is complete for the current operator-controlled product; independent registration and customer arbitrary-code runner remain unfinished. TASTE application unchanged.
