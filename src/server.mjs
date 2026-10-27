@@ -20,6 +20,7 @@ import {Scanner} from './scanner.mjs';
 import {subscribeMeta,metaStatus,restoreMetaBudget,metaCompletion} from './meta-client.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 export async function createApp({port=Number(process.env.PORT||4310),dataDir=path.join(root,'data'),token:givenToken,metaTransport=fetch,metaApiKey=process.env.MODEL_API_KEY||process.env.META_AI_API}={}) {
+  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!sharedAuth.enabled)throw Error('Configure RESCUE_ALLOWED_EMAILS before exposing the administrator workspace');
   await mkdir(dataDir,{recursive:true});
   let token=givenToken||process.env.RESCUE_API_TOKEN;
   if(!token){try{token=(await readFile(path.join(dataDir,'operator-token'),'utf8')).trim();}catch{token=randomBytes(32).toString('hex');await writeFile(path.join(dataDir,'operator-token'),token,{mode:0o600});}}
@@ -29,7 +30,6 @@ export async function createApp({port=Number(process.env.PORT||4310),dataDir=pat
   const platform=new Platform(store);await platform.init();restoreMetaBudget(store.db.prepare('SELECT payload FROM meta_requests ORDER BY id DESC LIMIT 300').all().map(r=>JSON.parse(r.payload)));const unsubscribeMeta=subscribeMeta(event=>store.db.prepare('INSERT INTO meta_requests(payload) VALUES (?)').run(JSON.stringify(event)));
   const connections=new Connections(store),devops=new DevOps(store,studio,platform,connections),scanner=new Scanner(store,platform,connections,studio),workbench=new ProjectWorkbench(store,platform,connections,studio,scanner);const buckets=new Map();
   const json=(res,status,value)=>{if(status>=400&&value.error)value={...value,code:({400:'INVALID_REQUEST',401:'UNAUTHENTICATED',403:'FORBIDDEN',404:'NOT_FOUND',429:'RATE_LIMITED'})[status]||'REQUEST_FAILED',message:value.error,requestId:randomUUID()};res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(value));};
-  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!sharedAuth.enabled)throw Error('Configure RESCUE_ALLOWED_EMAILS before exposing the administrator workspace');
   const server=http.createServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");

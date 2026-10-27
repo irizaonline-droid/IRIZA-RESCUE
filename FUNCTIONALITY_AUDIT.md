@@ -211,3 +211,10 @@ Executed through browser: refreshed IRIZA public check at 2026-10-27T20:30:50.37
 ## AI fix entry button repair
 
 PASS: Generate AI fix proposal is enabled without imported source and opens guided source selection instead of a disabled control. User must explicitly select and confirm the matching source before linking/importing; no repository is guessed. Existing importable projects offer Import source & continue. Imported projects offer a file selector and issue form; generation runs source checks and uses the existing bound proposal/approval backend. Browser-executed on IRIZA website: AI tab -> button -> source confirmation dialog, no website/source association changed. Six project-workbench backend tests pass; browser JavaScript syntax passes. Full proposal lifecycle was previously executed on a synthetic fixture, not production.
+
+
+## Shared identity, workstation UI and repository release
+
+PASS: CodeMirror line numbers and coloured Python source browser-inspected; source remains in sandbox copies. Compact gallery and bounded support layout browser-inspected. 59 RESCUE tests passed, seven parent TASTE auth-return tests passed; shared identity tests use mocked profile responses. Production shared sign-in is NOT VERIFIED; allowed account configuration and healthy TASTE origin are still required. Token fallback is retained until then, not removed from an unauthenticated workspace.
+
+PASS: complete reviewed source uploaded to irizaonline-droid/IRIZA-RESCUE main through the GitHub connector and package.json fetched back by exact commit. CLI push had no credential; connector write succeeded. No private data or .env was uploaded. Latest production observations at 21:03 UTC: iriza.online 502; educo.rw 307 then /en 200; mrcreativist.ca 200. These are observations, not repairs performed by RESCUE. DirectAdmin release, DNS and recurring outage remediation remain BLOCKED on credential-file path, verified target, Node24+ runtime and shared-identity rollout.
