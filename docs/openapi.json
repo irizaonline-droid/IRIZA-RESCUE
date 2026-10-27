@@ -1,0 +1,3091 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IRIZA RESCUE Sandbox Studio API",
+    "version": "1.0.0",
+    "description": "Local single-owner API. Confirmed future domain: rescue.iriza.online. No production repair or arbitrary repository execution."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:4310/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Operator token, or sandbox:read key for documented read routes. Read keys expire in 24 hours."
+      }
+    }
+  },
+  "paths": {
+    "/studio": {
+      "get": {
+        "summary": "Workspace overview and actual runner limits",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/connections": {
+      "get": {
+        "summary": "List actual repository metadata and scoped telemetry agents without credentials",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/repositories": {
+      "post": {
+        "summary": "Import GitHub metadata and pin a commit; never execute source",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents": {
+      "post": {
+        "summary": "Enroll one local telemetry-only agent and disclose its credential once",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 70
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{id}/revoke": {
+      "post": {
+        "summary": "Revoke a telemetry-only agent",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-sdk": {
+      "get": {
+        "summary": "Download local Node.js telemetry sender",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/agent-telemetry": {
+      "post": {
+        "summary": "Submit bounded sanitized observations for one agent",
+        "description": "Required credential: telemetry:write-own.",
+        "x-credential-scope": "telemetry:write-own",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "status": {
+                    "enum": [
+                      "healthy",
+                      "degraded"
+                    ]
+                  },
+                  "checks": {
+                    "type": "array",
+                    "maxItems": 10
+                  },
+                  "logs": {
+                    "type": "array",
+                    "maxItems": 20
+                  }
+                },
+                "required": [
+                  "sequence",
+                  "at",
+                  "status",
+                  "checks",
+                  "logs"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/analyze": {
+      "post": {
+        "summary": "Run current tests and create an evidence-led assessment, with a separate repair proposal when appropriate",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-journey/readiness": {
+      "get": {
+        "summary": "Report actual customer GitHub-to-PR blockers; no execution or authorization",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Validate candidate GitHub URL and report missing runtime capabilities",
+        "description": "Assessment only. Does not authorize, fetch, clone, execute, patch, publish or deploy.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "repositoryUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "repositoryUrl"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "summary": "Read local persisted workspace preferences",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Validate and persist local workspace preferences",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceName": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "theme": {
+                    "enum": [
+                      "dark",
+                      "light",
+                      "system"
+                    ]
+                  },
+                  "language": {
+                    "enum": [
+                      "en",
+                      "fr"
+                    ]
+                  },
+                  "incidentAlerts": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "workspaceName",
+                  "displayName",
+                  "theme",
+                  "language",
+                  "incidentAlerts"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/archived": {
+      "get": {
+        "summary": "List recoverably archived assets",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/assets/{id}/rename": {
+      "post": {
+        "summary": "Rename an asset without changing its URL or ownership",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 70
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}/archive": {
+      "post": {
+        "summary": "Recoverably remove asset from active list and disable monitoring",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}/restore": {
+      "post": {
+        "summary": "Restore archived asset with monitoring disabled",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/meta/status": {
+      "get": {
+        "summary": "Recorded live/mock requests, token usage and bounded inference status",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/meta/test": {
+      "post": {
+        "summary": "Test Muse Spark with a fixed readiness prompt; never execute a recovery",
+        "description": "Operator-only. Returns actual provider/model/request ID/usage. A mock transport is explicitly labeled MOCK.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets": {
+      "get": {
+        "summary": "List operator-owned public website observations",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Register a public HTTPS website and run one bounded observation",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 70
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": [
+                  "name",
+                  "url"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}": {
+      "get": {
+        "summary": "Read website observations, TLS evidence and observed incidents",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/assets/{id}/report": {
+      "get": {
+        "summary": "Export public observation evidence; no remote repairs",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/assets/{id}/probe": {
+      "post": {
+        "summary": "Run one public-only HTTPS observation",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}/ownership-challenge": {
+      "post": {
+        "summary": "Create DNS TXT or file proof",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "enum": [
+                      "dns",
+                      "file"
+                    ]
+                  }
+                },
+                "required": [
+                  "method"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}/verify-ownership": {
+      "post": {
+        "summary": "Verify exact one-use unexpired ownership proof",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "challengeId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "challengeId"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{id}/monitoring": {
+      "post": {
+        "summary": "Enable/pause recurring checks only after current ownership proof",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "intervalSeconds": {
+                    "enum": [
+                      60,
+                      300,
+                      900
+                    ]
+                  }
+                },
+                "required": [
+                  "enabled",
+                  "intervalSeconds"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support/conversations": {
+      "get": {
+        "summary": "List persisted local support conversations",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/support/conversations/{id}": {
+      "get": {
+        "summary": "Read an authorized saved conversation",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/support/tickets": {
+      "get": {
+        "summary": "List local escalation tickets",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Save local ticket without sending external messages",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 120
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 8000
+                  },
+                  "priority": {
+                    "enum": [
+                      "normal",
+                      "high"
+                    ]
+                  },
+                  "conversationId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support/tickets/{id}": {
+      "get": {
+        "summary": "Export a local support ticket and comments",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Update local ticket state or append an operator comment",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "OPEN",
+                      "IN_PROGRESS",
+                      "RESOLVED"
+                    ]
+                  },
+                  "comment": {
+                    "type": "string",
+                    "maxLength": 4000
+                  }
+                },
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes": {
+      "get": {
+        "summary": "List sandbox metadata",
+        "description": "Required credential: operator or sandbox:read.",
+        "x-credential-scope": "operator or sandbox:read",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create and launch included sample",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "201": {
+            "description": "Created and launched sample environment"
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 70
+                  },
+                  "source": {
+                    "const": "demo"
+                  },
+                  "ttlMinutes": {
+                    "enum": [
+                      15,
+                      30,
+                      60
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "source"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}": {
+      "get": {
+        "summary": "Read sandbox detail",
+        "description": "Read-only keys receive metadata and gate only; preview capabilities and pending approvals are excluded.",
+        "x-credential-scope": "operator or sandbox:read",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/sandboxes/{id}/release-gate": {
+      "get": {
+        "summary": "Get exact-build release decision",
+        "description": "Required credential: operator or sandbox:read.",
+        "x-credential-scope": "operator or sandbox:read",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/sandboxes/{id}/report": {
+      "get": {
+        "summary": "Export full release and recovery evidence",
+        "description": "Required credential: operator or sandbox:read.",
+        "x-credential-scope": "operator or sandbox:read",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/sandboxes/{id}/tests": {
+      "post": {
+        "summary": "Run independent tests",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "browser": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/inject": {
+      "post": {
+        "summary": "Inject a supported sample fault",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scenario": {
+                    "enum": [
+                      "stopped_backend",
+                      "invalid_config",
+                      "broken_deployment"
+                    ]
+                  }
+                },
+                "required": [
+                  "scenario"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/diagnose": {
+      "post": {
+        "summary": "Investigate observed failure; Meta or labeled local rules",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/approve": {
+      "post": {
+        "summary": "Approve exact proposal and execute fixed sandbox repair",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "proposalId": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "digest": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "proposalId",
+                  "nonce",
+                  "digest"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/reset": {
+      "post": {
+        "summary": "Snapshot and restore known-good sample",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/rollback": {
+      "post": {
+        "summary": "Restore selected snapshot and retest",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "snapshotId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "snapshotId"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/stop": {
+      "post": {
+        "summary": "Stop disposable preview",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sandboxes/{id}/launch": {
+      "post": {
+        "summary": "Launch a new preview session",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support": {
+      "post": {
+        "summary": "Read-only guide-grounded support",
+        "description": "Eight messages per minute, one inference at a time. No commands or approvals. Real Meta errors remain visible.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "projectId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/guides": {
+      "get": {
+        "summary": "Get bundled user guides",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/openapi": {
+      "get": {
+        "summary": "Get this API contract",
+        "description": "Required credential: operator or sandbox:read.",
+        "x-credential-scope": "operator or sandbox:read",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/reference": {
+      "get": {
+        "summary": "List supplied source books and specifications",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/reference/{id}": {
+      "get": {
+        "summary": "Download one allowlisted original PDF or Markdown reference",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/sdk": {
+      "get": {
+        "summary": "Download TypeScript client",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "TypeScript source",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/developer-keys": {
+      "get": {
+        "summary": "List key IDs and expiry without secrets",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Issue one read-only key, displayed once",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developer-keys/{id}/revoke": {
+      "post": {
+        "summary": "Revoke a read-only key",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emergency-stop": {
+      "post": {
+        "summary": "Persist execution stop for new mutations",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "enabled"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repositories/{id}/scan": {
+      "post": {
+        "summary": "Read bounded pinned GitHub source and save findings without execution",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects": {
+      "get": {
+        "summary": "List project records by active, archived or trash view",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/projects/local": {
+      "post": {
+        "summary": "Copy bounded local text source into a project workspace",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}": {
+      "get": {
+        "summary": "Read project metadata, file inventory, checks and capabilities",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Update name, notes, source link, archive or recoverable trash state",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/file": {
+      "get": {
+        "summary": "Read one copied source file by path query",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Save a sandbox file with base hash and version preconditions",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/workspace": {
+      "post": {
+        "summary": "Project-scoped workspace operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/scan": {
+      "post": {
+        "summary": "Project-scoped scan operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/validate": {
+      "post": {
+        "summary": "Project-scoped validate operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/audit": {
+      "post": {
+        "summary": "Project-scoped audit operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/propose": {
+      "post": {
+        "summary": "Project-scoped propose operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/approve": {
+      "post": {
+        "summary": "Project-scoped approve operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{key}/runtime": {
+      "post": {
+        "summary": "Project-scoped runtime operation; operator only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Read isolated runner configuration without secrets",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/projects/{key}/export": {
+      "get": {
+        "summary": "Export changed source copies and a Git patch; no remote write",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/devops": {
+      "get": {
+        "summary": "Inspect actual local runtime, database and environment planning profiles",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/devops/report": {
+      "get": {
+        "summary": "Export non-deploying human review report",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      }
+    },
+    "/environments": {
+      "post": {
+        "summary": "Save environment metadata; variable names only",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/environments/{id}": {
+      "post": {
+        "summary": "Edit environment planning metadata",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/environments/{id}/archive": {
+      "post": {
+        "summary": "Archive planning profile",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/environments/{id}/restore": {
+      "post": {
+        "summary": "Restore planning profile",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scans": {
+      "get": {
+        "summary": "List saved bounded scan reports",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        }
+      },
+      "post": {
+        "summary": "Run bounded static source checks and connected observations",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "localPath": {
+                    "type": "string"
+                  },
+                  "includeLocal": {
+                    "type": "boolean"
+                  },
+                  "refreshWebsites": {
+                    "type": "boolean"
+                  }
+                },
+                "maxProperties": 12
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scans/{id}": {
+      "get": {
+        "summary": "Read a saved coverage and findings report",
+        "description": "Required credential: operator.",
+        "x-credential-scope": "operator",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS sandbox_projects (id TEXT PRIMARY KEY, tenant TEXT NOT NULL, payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS developer_keys (id TEXT PRIMARY KEY, tenant TEXT NOT NULL, hash TEXT NOT NULL UNIQUE, expires TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS studio_settings (name TEXT PRIMARY KEY, value TEXT NOT NULL);
+INSERT OR IGNORE INTO schema_migrations VALUES (1, datetime('now'));

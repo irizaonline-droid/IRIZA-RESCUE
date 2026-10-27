@@ -1,0 +1,12 @@
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {DatabaseSync} from 'node:sqlite';
+import {fileURLToPath} from 'node:url';
+const out=new URL('../artifacts/functionality-audit/',import.meta.url);await mkdir(out,{recursive:true});
+const token=(await readFile(new URL('browser-data/operator-token',out),'utf8')).trim();
+const get=async route=>{const r=await fetch('http://127.0.0.1:4311/api/v1'+route,{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw Error('Audit response '+r.status);return r.json();};
+const studio=await get('/studio'),project=await get('/sandboxes/'+studio.projects[0].id),meta=await get('/meta/status'),readiness=await get('/customer-journey/readiness');
+const summary={checkedAt:new Date().toISOString(),instance:'DISPOSABLE AUDIT TWIN ON 4311; NOT MAIN DATABASE',projectId:project.id,fixtureOnly:true,state:project.state,receipts:project.receipts.map(r=>({recovered:r.recovered,actionId:r.actionId,completedAt:r.completedAt,requestId:r.proposal.requestId,provider:r.proposal.provider,tools:r.proposal.toolTrace?.length,verification:r.verification.results.map(t=>({id:t.id,status:t.status,required:t.required})),observations:r.verification.observations.map(o=>({at:o.at,checks:o.checks.map(c=>({route:c.route,status:c.status}))}))})),runs:project.runs.map(r=>({id:r.id,revision:r.revision,results:r.results.map(t=>({id:t.id,status:t.status,required:t.required}))})),diagnosisFailures:project.history.filter(e=>e.type==='diagnosis.failed'),modelRequests:meta.history.map(e=>({at:e.at,purpose:e.purpose,provider:e.provider,httpStatus:e.httpStatus,requestId:e.requestId,usage:e.usage,error:e.error})),readiness};
+await writeFile(new URL('executed-journey.json',out),JSON.stringify(summary,null,2));
+const mainDb=new DatabaseSync(fileURLToPath(new URL('../data/rescue.sqlite',import.meta.url)),{readOnly:true});
+const stop=mainDb.prepare("SELECT value FROM studio_settings WHERE name='emergency-stop'").get()?.value;mainDb.close();
+console.log(JSON.stringify({fixtureProject:project.id,state:project.state,recoveredReceipts:summary.receipts.length,mainEmergencyStop:stop,runs:summary.runs,modelRequests:summary.modelRequests.map(r=>({purpose:r.purpose,provider:r.provider,httpStatus:r.httpStatus,requestId:r.requestId})),customerReady:readiness.ready},null,2));

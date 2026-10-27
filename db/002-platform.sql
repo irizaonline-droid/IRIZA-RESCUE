@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS meta_requests (id INTEGER PRIMARY KEY, payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS assets (id TEXT PRIMARY KEY, organization_id TEXT NOT NULL, name TEXT NOT NULL, url TEXT NOT NULL, verified_until TEXT, interval_seconds INTEGER NOT NULL DEFAULT 300, monitoring INTEGER NOT NULL DEFAULT 0, next_check TEXT, failures INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS asset_org_idx ON assets(organization_id);
+CREATE TABLE IF NOT EXISTS ownership_challenges (id TEXT PRIMARY KEY, asset_id TEXT NOT NULL REFERENCES assets(id), organization_id TEXT NOT NULL, token_hash TEXT NOT NULL, method TEXT NOT NULL, expires_at TEXT NOT NULL, used INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS health_probes (id TEXT PRIMARY KEY, asset_id TEXT NOT NULL REFERENCES assets(id), organization_id TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS probe_asset_idx ON health_probes(asset_id,created_at);
+CREATE TABLE IF NOT EXISTS asset_incidents (id TEXT PRIMARY KEY, asset_id TEXT NOT NULL REFERENCES assets(id), organization_id TEXT NOT NULL, state TEXT NOT NULL, detected_at TEXT NOT NULL, resolved_at TEXT, payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS support_conversations (id TEXT PRIMARY KEY, organization_id TEXT NOT NULL, language TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS support_messages (id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES support_conversations(id), organization_id TEXT NOT NULL, role TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS support_tickets (id TEXT PRIMARY KEY, organization_id TEXT NOT NULL, title TEXT NOT NULL, state TEXT NOT NULL, priority TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS ticket_comments (id TEXT PRIMARY KEY, ticket_id TEXT NOT NULL REFERENCES support_tickets(id), organization_id TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL);
+INSERT OR IGNORE INTO schema_migrations VALUES (2, datetime('now'));
