@@ -1,6 +1,6 @@
 # Implementation progress — Engineering Studio 0.4.0
 
-Delivered locally in the existing RESCUE project with its approved identity and Node/SQLite backend preserved:
+Delivered locally and released to rescue.iriza.online in the existing RESCUE project with its approved identity and Node/SQLite backend preserved:
 
 1. Safe ZIP import and private source-copy storage, with a two-upload admission limit.
 2. Monaco editor, five same-origin workers, nonce-preserving theme CSS, editor tabs, persistent drafts, conflict rejection, file history and actual diff viewer.
@@ -17,3 +17,7 @@ Actual browser sequence: staging account sign-in → ZIP import → Monaco sourc
 Pre-change rollback files: .private/upgrade-v3-rollback. Existing account work was preserved. New databases use additive tables; original imports and production data are not overwritten.
 
 Not delivered: GitHub App enrollment, successful arbitrary-customer VM run, full LSP/debugger, semantic database/call graphs, multi-file repair transactions, automatic customer PR/merge/deploy. No claim of complete commercial-platform readiness.
+
+Hosted release: 20261028T160604Z, source a7eec63. Five consistent RESCUE SQLite backups and preserved environment/rollback preceded activation. Public and authenticated import/index smoke checks passed.
+
+Production Meta verification also completed: the synthetic QA project used live Muse Spark 1.3 in Quick Help, made two provider requests, read checkout.mjs and returned actual source references. Clicking checkout.mjs:2 opened the correct file in Monaco. Hosted browser console inspection reported no warnings/errors in that tested flow. The QA account was signed out after verification.

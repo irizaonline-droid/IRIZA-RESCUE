@@ -24,3 +24,9 @@ On a disposable account and database at localhost:4311:
 ## Blocked or not executed
 
 No authorized RESCUE Vercel Sandbox project/token/team is configured in the application. The connected assistant account lists an unrelated project only; it was not changed or used. Docker/Podman are unavailable locally; WSL is not an installed execution provider. No generic customer runtime, customer preview, PR creation, merge or deployment was executed by these engineering actions. Full project LSP/debugging and multi-file patch verification remain unavailable.
+
+## Hosted release smoke test
+
+Release 20261028T160604Z activated on DirectAdmin with five consistent RESCUE database backups. Public onboarding/signin/assets/example returned200, anonymous projects401. Existing synthetic QA sign-in, real ZIP upload and hosted JS/Python source indexing succeeded in the browser. IRIZA TASTE homepage returned200 after activation and was not modified. See docs/DIRECTADMIN_RELEASE_STATUS.md.
+
+Production Meta verification also completed: the synthetic QA project used live Muse Spark 1.3 in Quick Help, made two provider requests, read checkout.mjs and returned actual source references. Clicking checkout.mjs:2 opened the correct file in Monaco. Hosted browser console inspection reported no warnings/errors in that tested flow. The QA account was signed out after verification.
