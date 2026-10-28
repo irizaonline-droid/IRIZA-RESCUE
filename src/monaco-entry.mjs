@@ -1,6 +1,10 @@
 import * as monaco from 'monaco-editor';
+import {typescriptDefaults,javascriptDefaults,JsxEmit} from 'monaco-editor/language/typescript/monaco.contribution.js';
 self.MonacoEnvironment={getWorker(_id,label){return new Worker('/monaco/'+({typescript:'ts',javascript:'ts',json:'json',css:'css',scss:'css',less:'css',html:'html',handlebars:'html'}[label]||'editor')+'.worker.js');}};
 const language=p=>({ts:'typescript',tsx:'typescript',js:'javascript',jsx:'javascript',mjs:'javascript',cjs:'javascript',py:'python',md:'markdown',sh:'shell',ps1:'powershell',rs:'rust',cs:'csharp'})[p.split('.').pop()]||p.split('.').pop();
+// Browser models have no installed project dependencies. Keep syntax diagnostics;
+// semantic diagnostics come from the bounded backend evidence, not missing browser types.
+for(const defaults of [typescriptDefaults,javascriptDefaults]){defaults.setDiagnosticsOptions({noSemanticValidation:true,noSyntaxValidation:false});defaults.setCompilerOptions({allowNonTsExtensions:true,jsx:JsxEmit.Preserve});}
 let sequence=0;
 function theme(){return document.documentElement.dataset.theme==='light'?'vs':'vs-dark';}
 window.createRescueEditor=(parent,source,path,onChange)=>{
@@ -14,3 +18,4 @@ window.createRescueDiff=(parent,original,modified,path)=>{
  const a=monaco.editor.createModel(original,language(path)),b=monaco.editor.createModel(modified,language(path));
  const editor=monaco.editor.createDiffEditor(parent,{theme:theme(),automaticLayout:true,readOnly:true,originalEditable:false,renderSideBySide:true,scrollBeyondLastLine:false});editor.setModel({original:a,modified:b});return {destroy(){editor.dispose();a.dispose();b.dispose();}};
 };
+

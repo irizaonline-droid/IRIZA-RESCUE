@@ -1,3 +1,4 @@
+import {sourceSecretFindings} from './source-safety.mjs';
 import {engineeringTools} from './tool-registry.mjs';
 import {ToolLoopAgent,tool,isStepCount} from 'ai';
 import {createOpenAI} from '@ai-sdk/openai';
@@ -29,11 +30,11 @@ export class EngineeringAgent {
   const empty=z.object({}).strict();
   const tools={
    list_project_files:wrapped('list_project_files',empty,()=>this.wb.detail(job.project).files.slice(0,100)),
-   read_project_file:wrapped('read_project_file',z.object({path:z.string().max(220),startLine:z.number().int().min(1).max(100000),lineCount:z.number().int().min(1).max(80)}).strict(),({path,startLine,lineCount})=>{const f=this.wb.file(job.project,path);if(sanitize(f.content)!==f.content)throw Error('Potential secrets detected; file withheld from model');return {path,startLine,lines:f.content.split('\n').slice(startLine-1,startLine-1+lineCount).map((text,i)=>({line:startLine+i,text:text.slice(0,500)}))};}),
+   read_project_file:wrapped('read_project_file',z.object({path:z.string().max(220),startLine:z.number().int().min(1).max(100000),lineCount:z.number().int().min(1).max(80)}).strict(),({path,startLine,lineCount})=>{const f=this.wb.file(job.project,path);if(sourceSecretFindings(f.content).length>0)throw Error('Potential secrets detected; file withheld from model');return {path,startLine,lines:f.content.split('\n').slice(startLine-1,startLine-1+lineCount).map((text,i)=>({line:startLine+i,text:text.slice(0,500)}))};}),
    find_symbol:wrapped('find_symbol',z.object({query:z.string().min(2).max(200)}).strict(),async({query})=>this.wb.intelligence(job.project,query)),
    retrieve_diagnostics:wrapped('retrieve_diagnostics',empty,()=>{const p=this.wb.meta(job.project);return {validation:p.validation||null,runtime:p.runtimeReceipt||null,dependencyAudit:p.vulnerabilityAudit||null,warning:'Only recorded evidence. Missing checks have not run.'};}),
    inspect_git_diff:wrapped('inspect_git_diff',empty,()=>{const e=this.wb.export(job.project);return {changed:e.files.map(f=>({path:f.path,baseHash:f.baseHash})),patch:e.patch.slice(0,10000),productionChanged:false};}),
-   search_repository:wrapped('search_repository',z.object({query:z.string().min(2).max(100)}).strict(),({query})=>{const hits=[];for(const f of this.wb.rows(job.project)){if(sanitize(f.content)!==f.content)continue;for(const [i,text] of f.content.split('\n').entries())if(text.toLowerCase().includes(query.toLowerCase())){hits.push({path:f.path,line:i+1,text:text.slice(0,250)});if(hits.length>=40)return hits;}}return hits;})
+   search_repository:wrapped('search_repository',z.object({query:z.string().min(2).max(100)}).strict(),({query})=>{const hits=[];for(const f of this.wb.rows(job.project)){if(sourceSecretFindings(f.content).length>0)continue;for(const [i,text] of f.content.split('\n').entries())if(text.toLowerCase().includes(query.toLowerCase())){hits.push({path:f.path,line:i+1,text:text.slice(0,250)});if(hits.length>=40)return hits;}}return hits;})
   };
   try{
    emit('STARTED',{summary:'Read-only source investigation. No repair, test command or deployment is authorized.'});
