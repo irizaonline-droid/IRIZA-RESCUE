@@ -1,3 +1,9 @@
+import {admitZipUpload} from './zip-import.mjs';
+import {engineeringTools,setEngineeringTool,languageCapabilities} from './tool-registry.mjs';
+import {EngineeringAgent,ENGINEERING_MODES} from './engineering-agent.mjs';
+import {Accounts} from './accounts.mjs';
+import {AccountWorkspaces} from './account-workspaces.mjs';
+import {requestContext} from './request-context.mjs';
 import {SharedAuth,authLinks} from './shared-auth.mjs';
 import {ProjectWorkbench} from './project-workbench.mjs';
 import http from 'node:http';
@@ -19,27 +25,47 @@ import {DevOps} from './devops.mjs';
 import {Scanner} from './scanner.mjs';
 import {subscribeMeta,metaStatus,restoreMetaBudget,metaCompletion} from './meta-client.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
-export async function createApp({port=Number(process.env.PORT||4310),dataDir=process.env.RESCUE_DATA_DIR||path.join(root,'data'),token:givenToken,metaTransport=fetch,metaApiKey=process.env.MODEL_API_KEY||process.env.META_AI_API}={}) {
-  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!sharedAuth.enabled&&!(process.env.RESCUE_AUTH_MODE==='operator'&&process.env.RESCUE_API_TOKEN?.length>=32))throw Error('Public deployment requires configured identity or explicit operator authentication with a strong server token');
+export async function createApp({port=Number(process.env.PORT||4310),dataDir=process.env.RESCUE_DATA_DIR||path.join(root,'data'),token:givenToken,metaTransport=fetch,metaApiKey=process.env.MODEL_API_KEY||process.env.META_AI_API,accountsEnabled=process.env.RESCUE_AUTH_MODE==='accounts',tenantId=null}={}) {
+  const sharedAuth=new SharedAuth();const publicOrigin=process.env.RESCUE_PUBLIC_ORIGIN;if(publicOrigin&&publicOrigin!=='https://rescue.iriza.online')throw Error('RESCUE_PUBLIC_ORIGIN must be https://rescue.iriza.online');if(publicOrigin&&!accountsEnabled&&!tenantId&&!sharedAuth.enabled&&!(process.env.RESCUE_AUTH_MODE==='operator'&&process.env.RESCUE_API_TOKEN?.length>=32))throw Error('Public deployment requires configured identity or explicit operator authentication with a strong server token');
   await mkdir(dataDir,{recursive:true});
   let token=givenToken||process.env.RESCUE_API_TOKEN;
   if(!token){try{token=(await readFile(path.join(dataDir,'operator-token'),'utf8')).trim();}catch{token=randomBytes(32).toString('hex');await writeFile(path.join(dataDir,'operator-token'),token,{mode:0o600});}}
   if(token.length<32)throw Error('RESCUE_API_TOKEN must contain at least 32 characters');
-  const lab=new Lab();await lab.start();const store=new Store(path.join(dataDir,'rescue.sqlite'));const engine=new Engine(lab,store);
+  const lab=new Lab();await lab.start({worker:!accountsEnabled});const store=new Store(path.join(dataDir,'rescue.sqlite'));const engine=new Engine(lab,store);
   const studio=new Studio(store);await studio.init();let supportBusy=false;const supportCalls=[];
-  const platform=new Platform(store);await platform.init();restoreMetaBudget(store.db.prepare('SELECT payload FROM meta_requests ORDER BY id DESC LIMIT 300').all().map(r=>JSON.parse(r.payload)));const unsubscribeMeta=subscribeMeta(event=>store.db.prepare('INSERT INTO meta_requests(payload) VALUES (?)').run(JSON.stringify(event)));
-  const connections=new Connections(store),devops=new DevOps(store,studio,platform,connections),scanner=new Scanner(store,platform,connections,studio),workbench=new ProjectWorkbench(store,platform,connections,studio,scanner);const buckets=new Map();
+  const platform=new Platform(store);await platform.init();if(!tenantId)restoreMetaBudget(store.db.prepare('SELECT payload FROM meta_requests ORDER BY id DESC LIMIT 300').all().map(r=>JSON.parse(r.payload)));const unsubscribeMeta=subscribeMeta(event=>{if((event.accountId||null)===(tenantId||null))store.db.prepare('INSERT INTO meta_requests(payload) VALUES (?)').run(JSON.stringify(event));});
+  const connections=new Connections(store,{githubToken:tenantId?'':process.env.RESCUE_GITHUB_TOKEN}),devops=new DevOps(store,studio,platform,connections),scanner=new Scanner(store,platform,connections,studio),workbench=new ProjectWorkbench(store,platform,connections,studio,scanner);const engineering=new EngineeringAgent(workbench,{completion:(body,options)=>metaCompletion(body,{...options,apiKey:metaApiKey,fetcher:metaTransport})});const buckets=new Map();
   const json=(res,status,value)=>{if(status>=400&&value.error)value={...value,code:({400:'INVALID_REQUEST',401:'UNAUTHENTICATED',403:'FORBIDDEN',404:'NOT_FOUND',429:'RATE_LIMITED'})[status]||'REQUEST_FAILED',message:value.error,requestId:randomUUID()};res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(value));};
-  const server=http.createServer(async(req,res)=>{
+  const accounts=accountsEnabled?new Accounts(path.join(dataDir,'accounts.sqlite'),{secure:!!publicOrigin}):null;
+  const memberWorkspaces=accounts?new AccountWorkspaces(path.join(dataDir,'members'),options=>createApp({...options,metaTransport,metaApiKey})):null;
+  const server=http.createServer((req,res)=>requestContext.run({accountId:tenantId},async()=>{
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     const styleNonce=randomBytes(18).toString('base64');res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src 'self' 'nonce-${styleNonce}'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`);
     const host=req.headers.host;const expected=`127.0.0.1:${server.address().port}`;
     if(host!==expected && host!==`localhost:${server.address().port}` && !(publicOrigin&&host===new URL(publicOrigin).host))return json(res,403,{error:'Invalid host'});
     const url=new URL(req.url,`http://${host}`);
-    if(req.method==='GET'&&url.pathname==='/healthz')return json(res,200,{service:'IRIZA RESCUE',status:'ok',release:process.env.RESCUE_RELEASE||'local',authentication:sharedAuth.enabled?'shared-identity':'operator'});
+    if(req.method==='GET'&&url.pathname==='/healthz')return json(res,200,{service:'IRIZA RESCUE',status:'ok',release:process.env.RESCUE_RELEASE||'local',authentication:accounts?'accounts':sharedAuth.enabled?'shared-identity':'operator'});
+    if(accounts){
+      try{
+        if(url.pathname==='/auth/session'&&req.method==='GET'){const user=accounts.session(req.headers.cookie);return json(res,200,{enabled:true,mode:'accounts',authenticated:!!user,authorized:!!user,user,signin:'/signin',register:'/register'});}
+        if(['/auth/register','/auth/login','/auth/logout'].includes(url.pathname)&&req.method==='POST'){
+          if(![publicOrigin,`http://${host}`].filter(Boolean).includes(req.headers.origin))return json(res,403,{error:'Invalid authentication origin'});
+          if(req.headers['content-type']!=='application/json')return json(res,415,{error:'Expected application/json'});
+          let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>8192)return json(res,413,{error:'Request too large'});}const input=raw?JSON.parse(raw):{};
+          if(url.pathname==='/auth/logout'){res.setHeader('Set-Cookie',accounts.logout(req.headers.cookie));return json(res,200,{redirect:'/onboarding'});}
+          const result=await accounts[url.pathname==='/auth/register'?'register':'login'](input,req.socket.remoteAddress||'unknown');res.setHeader('Set-Cookie',result.cookie);return json(res,200,{user:result.user,redirect:'/dashboard'});
+        }
+        const user=accounts.session(req.headers.cookie);
+        if((url.pathname.startsWith('/api/')||url.pathname.startsWith('/preview/'))&&user){if(req.method==='POST'&&![publicOrigin,`http://${host}`].filter(Boolean).includes(req.headers.origin))return json(res,403,{error:'Invalid workspace origin'});const bearer=(req.headers.authorization||'').replace(/^Bearer /,'');if(bearer!==token)return await memberWorkspaces.forward(user,req,res);}
+        if(req.method==='GET'&&['/','/dashboard','/onboarding','/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){
+          if(!user||url.pathname==='/onboarding'){res.writeHead(200,{'Content-Type':'text/html'});res.end(await readFile(path.join(root,'public/account-entry.html')));return;}
+          url.pathname='/';
+        }
+      }catch(error){return json(res,/capacity|busy/.test(error.message)?503:400,{error:error instanceof SyntaxError?'Invalid JSON':error.message});}
+    }
     if(req.method==='GET'&&url.pathname==='/auth/session'){try{return json(res,200,await sharedAuth.session(req.headers.cookie));}catch{return json(res,503,{enabled:sharedAuth.enabled,authenticated:false,authorized:false,error:'IRIZA identity service is unavailable',...authLinks()});}}
-    if(req.method==='GET'&&['/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){if(!sharedAuth.enabled)return json(res,503,{error:'RESCUE account sign-in is not configured. The IRIZA TASTE project remains unchanged.'});const destination=/register|regiter|sign-up/.test(url.pathname)?authLinks().register:authLinks().signin;res.writeHead(302,{Location:destination});res.end();return;}
+    if(!accounts&&req.method==='GET'&&['/signin','/sign-in','/register','/regiter','/sign-up'].includes(url.pathname)){if(!sharedAuth.enabled)return json(res,503,{error:'RESCUE account sign-in is not configured. The IRIZA TASTE project remains unchanged.'});const destination=/register|regiter|sign-up/.test(url.pathname)?authLinks().register:authLinks().signin;res.writeHead(302,{Location:destination});res.end();return;}
 
     try{
       const preview=url.pathname.match(/^\/preview\/([0-9a-f-]{36})\/(health|checkout)?$/);
@@ -58,19 +84,24 @@ export async function createApp({port=Number(process.env.PORT||4310),dataDir=pro
         if(agent&&!(req.method==='POST'&&url.pathname==='/api/v1/agent-telemetry'))return json(res,403,{error:'Agent credentials can only submit their own telemetry'});
         if(!operator&&!agent&&!(req.method==='GET'&&(/^\/api\/v1\/sandboxes(?:\/[0-9a-f-]{36}(?:\/(?:release-gate|report))?)?$/.test(url.pathname)||url.pathname==='/api/v1/openapi')))return json(res,403,{error:'Read-only key has no permission for this operation'});
         if(req.method==='POST' && req.headers.origin && ![`http://${expected}`,`http://localhost:${server.address().port}`,publicOrigin].filter(Boolean).includes(req.headers.origin))return json(res,403,{error:'Invalid origin'});
+        if(req.method==='POST'&&url.pathname==='/api/v1/projects/upload'&&!admitZipUpload(res)){req.resume();return json(res,429,{error:'Archive import capacity is busy. Retry after another upload finishes.'});}
         let body={};
         if(req.method==='POST'){
           if(req.headers['content-type']!=='application/json')return json(res,415,{error:'Expected application/json'});
-          let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(/^\/api\/v1\/projects\/[^/]+\/file$/.test(url.pathname)?400000:8192))return json(res,413,{error:'Request too large'});}body=raw?JSON.parse(raw):{};
+          let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(url.pathname==='/api/v1/projects/upload'?11200000:/^\/api\/v1\/projects\/[^/]+\/(?:file|draft)$/.test(url.pathname)?400000:8192))return json(res,413,{error:'Request too large'});}body=raw?JSON.parse(raw):{};
         }
         if(url.pathname.startsWith('/api/v1/')){
           const route=url.pathname.slice('/api/v1'.length);
           if(route.startsWith('/projects')&&req.method==='POST'){const hits=(buckets.get('project-mutations')||[]).filter(t=>t>Date.now()-60000);if(hits.length>=60)return json(res,429,{error:'Project mutation rate limit reached'});hits.push(Date.now());buckets.set('project-mutations',hits);}
+          if(route==='/engineering/tools'){if(req.method==='GET')return json(res,200,{tools:engineeringTools(workbench),languages:languageCapabilities});if(req.method==='POST')return json(res,200,{tools:setEngineeringTool(workbench,body),languages:languageCapabilities});}
+          const investigation=route.match(/^\/projects\/([^/]+)\/investigations(?:\/([0-9a-f-]{36})(?:\/(cancel))?)?$/);
+          if(investigation){const key=decodeURIComponent(investigation[1]),id=investigation[2];if(req.method==='GET')return json(res,200,id?engineering.get(key,id):{modes:ENGINEERING_MODES,jobs:engineering.list(key)});if(req.method==='POST'){if(id&&investigation[3])return json(res,200,engineering.cancel(key,id));if(!id)return json(res,202,engineering.start(key,body));}}
           if(route==='/projects'&&req.method==='GET')return json(res,200,{projects:workbench.list(url.searchParams.get('state')||'active')});
+          if(route==='/projects/upload'&&req.method==='POST')return json(res,201,await workbench.upload(body));
           if(route==='/projects/local'&&req.method==='POST')return json(res,201,await workbench.local(body));
-          const projectRoute=route.match(/^\/projects\/([^/]+)(?:\/(workspace|file|validate|audit|propose|approve|export|scan|runtime))?$/);
-          if(projectRoute){const key=decodeURIComponent(projectRoute[1]),op=projectRoute[2];if(req.method==='GET'){if(op==='file')return json(res,200,workbench.file(key,url.searchParams.get('path')));if(op==='export')return json(res,200,workbench.export(key));if(op==='runtime')return json(res,200,workbench.detail(key).runner);if(!op)return json(res,200,workbench.detail(key));}
-            if(req.method==='POST'){if(!op)return json(res,200,workbench.update(key,body));if(op==='workspace')return json(res,201,await workbench.import(key));if(op==='file')return json(res,200,workbench.edit(key,body));if(op==='runtime')return json(res,200,await workbench.runtime(key,body));if(op==='validate')return json(res,200,await workbench.validate(key));if(op==='audit')return json(res,200,await workbench.audit(key));if(op==='propose')return json(res,200,await workbench.propose(key,body));if(op==='approve')return json(res,200,await workbench.approve(key,body));if(op==='scan'){const p=workbench.project(key);workbench.save(key,{...workbench.meta(key),analysis:null});if(p.kind==='github')return json(res,201,await scanner.repository(p.id));if(p.kind==='website')return json(res,200,await platform.check(p.id));return json(res,200,await workbench.validate(key));}}
+          const projectRoute=route.match(/^\/projects\/([^/]+)(?:\/(workspace|file|validate|audit|propose|approve|export|scan|runtime|intelligence|draft|history|receipt|fixture-verify|search))?$/);
+          if(projectRoute){const key=decodeURIComponent(projectRoute[1]),op=projectRoute[2];if(req.method==='GET'){if(op==='search')return json(res,200,workbench.search(key,url.searchParams.get('q')));if(op==='receipt')return json(res,200,workbench.receipt(key));if(op==='history')return json(res,200,{history:workbench.history(key,url.searchParams.get('path'))});if(op==='intelligence')return json(res,200,await workbench.intelligence(key,url.searchParams.get('q')));if(op==='intelligence')return json(res,200,await workbench.intelligence(key,url.searchParams.get('q')));if(op==='file')return json(res,200,workbench.file(key,url.searchParams.get('path')));if(op==='export')return json(res,200,workbench.export(key));if(op==='runtime')return json(res,200,workbench.detail(key).runner);if(!op)return json(res,200,workbench.detail(key));}
+            if(req.method==='POST'){if(!op)return json(res,200,workbench.update(key,body));if(op==='workspace')return json(res,201,await workbench.import(key));if(op==='fixture-verify')return json(res,200,await workbench.verifyFixture(key));if(op==='draft')return json(res,200,workbench.draft(key,body));if(op==='file')return json(res,200,workbench.edit(key,body));if(op==='runtime')return json(res,200,await workbench.runtime(key,body));if(op==='validate')return json(res,200,await workbench.validate(key));if(op==='audit')return json(res,200,await workbench.audit(key));if(op==='propose')return json(res,200,await workbench.propose(key,body));if(op==='approve')return json(res,200,await workbench.approve(key,body));if(op==='scan'){const p=workbench.project(key);workbench.save(key,{...workbench.meta(key),analysis:null});if(p.kind==='github')return json(res,201,await scanner.repository(p.id));if(p.kind==='website')return json(res,200,await platform.check(p.id));return json(res,200,await workbench.validate(key));}}
           }
           if(route==='/scans'&&req.method==='GET')return json(res,200,{reports:scanner.list()});
           const scan=route.match(/^\/scans\/([0-9a-f-]{36})$/);if(scan&&req.method==='GET')return json(res,200,scanner.get(scan[1]));
@@ -167,19 +198,20 @@ export async function createApp({port=Number(process.env.PORT||4310),dataDir=pro
         return json(res,404,{error:'API route not found'});
       }
       if(req.method!=='GET')return json(res,405,{error:'Method not allowed'});
-      const files={'/editor-bundle.js':['editor-bundle.js','text/javascript'],'/project-hub.js':['project-hub.js','text/javascript'],'/project-hub.css':['project-hub.css','text/css'],'/devops.js':['devops.js','text/javascript'],'/onboarding.js':['onboarding.js','text/javascript'],'/':['index.html','text/html'],'/workspace.js':['workspace.js','text/javascript'],'/app.js':['workspace.js','text/javascript'],'/workspace.css':['workspace.css','text/css'],'/theme-init.js':['theme-init.js','text/javascript'],'/prototype.css':['prototype.css','text/css'],'/logo.png':['logo.png','image/png'],'/mulish.woff2':['mulish.woff2','font/woff2']};
+      if(req.method==='GET'&&/^\/monaco\/(?:editor(?:\.worker)?|ts\.worker|json\.worker|css\.worker|html\.worker)\.(?:js|css)$/.test(url.pathname)||req.method==='GET'&&/^\/monaco\/codicon-[A-Z0-9]+\.ttf$/.test(url.pathname)){const asset=await readFile(path.join(root,'public',url.pathname));res.writeHead(200,{'Content-Type':url.pathname.endsWith('.css')?'text/css':url.pathname.endsWith('.ttf')?'font/ttf':'text/javascript'});res.end(asset);return;}
+      const files={'/engineering-demo.zip':['engineering-demo.zip','application/zip'],'/engineering-studio.js':['engineering-studio.js','text/javascript'],'/account-session.js':['account-session.js','text/javascript'],'/account-client.js':['account-client.js','text/javascript'],'/account.css':['account.css','text/css'],'/editor-bundle.js':['editor-bundle.js','text/javascript'],'/project-hub.js':['project-hub.js','text/javascript'],'/project-hub.css':['project-hub.css','text/css'],'/devops.js':['devops.js','text/javascript'],'/onboarding.js':['onboarding.js','text/javascript'],'/':['index.html','text/html'],'/workspace.js':['workspace.js','text/javascript'],'/app.js':['workspace.js','text/javascript'],'/workspace.css':['workspace.css','text/css'],'/theme-init.js':['theme-init.js','text/javascript'],'/prototype.css':['prototype.css','text/css'],'/logo.png':['logo.png','image/png'],'/mulish.woff2':['mulish.woff2','font/woff2']};
       if(!Object.hasOwn(files,url.pathname))return json(res,404,{error:'Not found'});
       const [file,type]=files[url.pathname];const bytes=await readFile(path.join(root,'public',file));res.writeHead(200,{'Content-Type':type});res.end(type==='text/html'?bytes.toString('utf8').replace('</head>',`<meta name="rescue-style-nonce" content="${styleNonce}"></head>`):bytes);
     }catch(error){json(res,400,{error:error instanceof SyntaxError?'Invalid JSON':error.message});}
-  });
+  }));
   server.requestTimeout=10000;server.headersTimeout=10000;
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);});
-  await engine.monitor();
-  let probing=false;const monitor=setInterval(async()=>{if(probing||engine.busy)return;probing=true;try{await engine.monitor();await studio.maintenance();await platform.maintenance();}catch{}finally{probing=false;}},5000);monitor.unref();
-  return {server,lab,store,engine,studio,platform,token,port:server.address().port,async close(){clearInterval(monitor);unsubscribeMeta();await new Promise(r=>server.close(r));await studio.close();await lab.close();store.close();}};
+  if(!accountsEnabled)await engine.monitor();
+  let probing=false;const monitor=setInterval(async()=>{if(probing||engine.busy)return;probing=true;try{if(!accountsEnabled)await engine.monitor();await studio.maintenance();await platform.maintenance();}catch{}finally{probing=false;}},5000);monitor.unref();
+  return {server,lab,store,engine,studio,platform,token,port:server.address().port,async close(){clearInterval(monitor);await engineering.close();await memberWorkspaces?.close();accounts?.close();unsubscribeMeta();await new Promise(r=>server.close(r));await studio.close();await lab.close();store.close();}};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  const app=await createApp();console.log(`IRIZA RESCUE → http://127.0.0.1:${app.port}\nOperator token: read data/operator-token (or your configured RESCUE_API_TOKEN).\nAll services are bound to loopback. Ctrl+C stops the lab.`);
+  const app=await createApp();console.log(`IRIZA RESCUE → http://127.0.0.1:${app.port}\n${process.env.RESCUE_AUTH_MODE==='accounts'?'Open onboarding, sign in or register.':'Operator token: read data/operator-token (or your configured RESCUE_API_TOKEN).'}\nAll services are bound to loopback. Ctrl+C stops the lab.`);
   for(const signal of ['SIGINT','SIGTERM'])process.once(signal,async()=>{await app.close();process.exit(0);});
 }
 

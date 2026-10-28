@@ -1,67 +1,56 @@
-# IRIZA RESCUE
+# IRIZA RESCUE — Engineering Studio 0.4.0
 
-**Winning Team — local recovery intelligence.** Detect an actual HTTP fault, investigate its evidence, approve a restricted repair, and independently verify the result.
+Winning Team. Import a project, inspect source, investigate evidence, review a patch and verify what actually changed. Domain: **rescue.iriza.online**.
 
-**Sandbox & Recovery Studio is implemented.** Open **Sandbox** below Integrations to create a temporary sample project, use its actual preview, run tests, inject controlled faults, review a diagnosis/diff, approve a fixed repair, restore snapshots and export JSON/Markdown release reports. **Documentation** contains ten searchable guides, original PDF/specification downloads, OpenAPI, a TypeScript client and read-only developer keys. The bottom-right support widget uses bundled guide retrieval without a key or real Meta inference when configured. Header sun/moon icons control appearance.
+The existing IRIZA identity, standalone Node.js backend and SQLite stores are preserved. IRIZA TASTE remains separate and unchanged by this upgrade.
 
-Read `docs/USER_GUIDE.md` for complete instructions and `docs/STUDIO_IMPLEMENTATION.md` for implemented boundaries. The D: RESCUE folder supplied by the owner is the specification source; this running application remains in the C: RESCUE workspace previously requested.
+## Run locally
 
-This is an original standalone local implementation created on October 27, 2026. It does not modify IRIZA TASTE. No cloud resources, GitHub repository, production repairs, or DNS changes are created.
+Requires Node.js 24+. From this directory:
 
-## Start on Windows
+```powershell
+npm ci --ignore-scripts
+npm run build:editor
+```
 
-1. Install Node.js 24 or later (the implementation was tested with Node 25.9.0).
-2. Double-click `Start-Rescue.cmd`, or run `npm start` in this folder.
-3. Open http://127.0.0.1:4310.
-4. Open `data/operator-token` in Notepad and paste its contents into the unlock form. Treat this file as a password. The token is generated automatically and never embedded in the frontend.
-5. Select **Failure lab**, inject a failure, select **Investigate evidence**, then **Approve lab recovery**. Download the resulting receipt.
+Create your own `.env` from `.env.example` only on first setup. Do not overwrite an existing configuration. Set `RESCUE_AUTH_MODE=accounts`, then run:
 
-No dependency installation, VS Code, database server, Docker, or internet connection is required for the local-rule demonstration. Node's built-in SQLite stores incidents and audit events under `data/`.
+```powershell
+npm start
+```
 
-## Demonstrated faults
+Open http://127.0.0.1:4310/. Onboarding leads to independent RESCUE sign-in/register, then the private dashboard. Account mode requires no operator unlock token. Existing operator data remains preserved and separate from new member workspaces; it is not automatically assigned to a public account. Email verification and automated password recovery are not implemented in this pilot.
 
-| Scenario | Actual failure | Restricted recovery |
-|---|---|---|
-| Stopped backend | Child process stops; proxy returns 502 | Start the fixed lab worker |
-| Invalid configuration | Worker returns 500 | Restore the known valid configuration |
-| Broken deployment | `/checkout` returns 404 | Switch the fixture to its stable release |
+## Engineering workflow
 
-The deployment scenario uses a real HTTP fixture with a controlled release switch; it is not a cloud rollback. The configuration scenario changes disposable runtime state. No AI-generated commands are executed. The lab is a trusted child process, **not an OS security sandbox** for arbitrary untrusted code.
+1. Projects → Add project → Upload a project ZIP (8 MB maximum). The import form offers a maintained checkout example. Public GitHub import and hosting-operator local import also remain available.
+2. Source intelligence indexes declarations/imports and reports coverage, Python AST availability and restricted TypeScript diagnostics. Search returns actual source locations.
+3. Sandbox editor uses Monaco with line numbers, code highlighting, folding, find/replace, tabs, persistent drafts, conflict checks, history and diff review.
+4. Engineering agent offers ten focused modes over six permission-scoped read-only tools. Source disclosure to Meta requires explicit consent. Tool events, model requests and results are persisted; cancellation and budgets are enforced.
+5. AI fix generates a selected-file proposal. Review the side-by-side diff, then explicitly approve. Only copied source changes; failed static validation rolls it back.
+6. Runtime & release exports an engineering receipt. The maintained arithmetic fixture has an exact-version verifier with real failing baseline/passing corrected tests. It is labelled as a trusted fixture test, not a generic customer sandbox.
+7. Arbitrary customer tests require a configured, authorized remote Vercel Sandbox. Only the exact reviewed snapshot is uploaded; no customer code runs on the primary server. Missing credentials keep the action disabled.
 
-## Enable real Meta diagnosis
+## Meta configuration
 
-Copy `.env.example` to `.env`, set `MODEL_API_KEY`, then restart. The server calls Meta directly at `https://api.meta.ai/v1/chat/completions` using `muse-spark-1.3`. Documentation was checked on October 27, 2026. The key remains on the server; do not paste it into the dashboard.
+Set `MODEL_API_KEY` or `META_AI_API` only in your ignored server environment. The configured model defaults to `muse-spark-1.3`. This release's actual browser evaluation used live Muse Spark 1.3 to inspect a controlled checkout source and generate a minimal arithmetic repair. Missing/failing inference is reported as an error; mock tests are distinguished from live evidence.
 
-Without a key, the interface explicitly identifies diagnoses as **local rules**. They are not AI results. With a key, an API or validation failure blocks the proposal; the application never silently relabels fallback text as Meta output. A live credentialed Meta request has not yet been verified.
+No repair tool is granted to the investigation agent. Patch approval remains a separate deterministic API. Source, logs and tool output are untrusted data.
 
-## Verification
+## Checks
 
 ```powershell
 npm test
-# While npm start is running: explicitly runs AND approves three fixed local repairs
-npm run demo
+npm run check
+npm audit
 ```
 
-`npm test` checks real HTTP failures and recoveries, authentication, cross-origin rejection, replay prevention, policy boundaries, model validation, redaction, restricted network addresses, persistent records, and audit tampering. The Meta unit test uses a mock transport and does not prove live access.
+See [CURRENT_CAPABILITIES_AUDIT.md](CURRENT_CAPABILITIES_AUDIT.md), [TEST_RESULTS.md](TEST_RESULTS.md), [SECURITY_REVIEW.md](SECURITY_REVIEW.md) and [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
-`scripts/browser-check.mjs` is a developer verification helper that currently uses the existing IRIZA TASTE Playwright installation and installed Microsoft Edge. It is not needed to run the application. Screenshots and demo receipts are written under `artifacts/`, which is excluded from Git by default.
+## Availability limits
 
-## Files
+GitHub App enrollment/private checkout, full project LSP/debugger, semantic call/database graphs, multi-file patch transactions, automatic customer PR creation and customer deployment adapters are not implemented. Generic customer before/after runtime success is unverified until an authorized isolated runner is connected. A URL does not grant source or origin access. No automatic merge or deployment is available.
 
-- `src/`: HTTP application, recovery engine, lab process, Meta adapter, policy, connectors, SQLite store.
-- `public/`: responsive dashboard, Light/Dark/System theme, locally hosted IRIZA logo and Mulish font.
-- `tests/`: built-in Node test runner suite.
-- `config/connectors.json`: operator-owned read-only endpoint allowlist, initially empty.
-- `docs/`: audit, architecture, API specification, decisions, source checklist, changelog, and remaining work.
+Original trusted sample health recovery remains available in Sample recovery lab. Its local processes and synthetic orders are explicitly separate from customer systems.
 
-## Limits before production
-
-This is a working local prototype, not a production deployment. It binds only to loopback, uses one operator token, and cannot repair external targets. External connectors are optional and read-only. Production needs scoped identities, TLS, hardened isolated runners, durable operation reconciliation, rate limits, externally anchored audit signatures, retention policy, and independent security review. Do not expose the local server through a public tunnel.
-
-The project domain is **`rescue.iriza.online`**, as explicitly confirmed by the owner. This supersedes the older `bridge.iriza.online` suggestion in the pasted launch instruction. No DNS or hosting changes have been made; the application currently runs locally. The four specification books and master/studio Markdown guides have now been supplied and read; authenticated official hackathon rules still require verification before submission. The internal target remains November 3, 2026.
-
-Brand provenance: `public/logo.png` is the owner's existing IRIZA icon. `public/mulish.woff2` comes from the owner's installed `@fontsource-variable/mulish`; its license is included. No proprietary application source or existing credentials were copied. Review branding permission before publishing a public repository.
-
-
-## Project workbench update
-Open a project to access its Scan Center, DevOps, AI analysis, copied-source editor and vulnerability checks. See docs/PROJECT_WORKBENCH_RELEASE.md for implemented scope and executed evidence. Run npm ci for the official Vercel SDK dependency. Runtime checks require the explicit RESCUE_VERCEL server configuration; the current connector attempt was denied 403. No live customer runtime or production deployment is claimed.
+Monaco assets are generated rather than stored as large Git blobs. Deployment archives must include the built `public/monaco` directory. Package versions/licenses and the CSP build adapter are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Credentials, SQLite data, private deployment state and evaluation artifacts are ignored by Git.

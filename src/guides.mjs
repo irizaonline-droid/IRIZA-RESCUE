@@ -7,6 +7,26 @@ export const referenceDocuments=[
 {id:'studio',file:'CODEX_SANDBOX_AND_RECOVERY_STUDIO_PROMPT.md',title:'Sandbox & Recovery Studio Prompt',type:'text/markdown'}
 ];
 export const guides=[
+{id:'engineering-v3',title:'Import, investigate and review a source repair',category:'Engineering Studio',summary:'ZIP import, source intelligence, live Meta tools, explicit approval and exact evidence.',body:`# Source engineering workflow
+1. Sign in to your independent RESCUE account. Open Projects, Add project, Upload a project ZIP.
+2. Choose an archive below 8 MB. RESCUE validates paths, links, file counts, expansion and UTF-8 source before saving a private copy. Import does not run code or send it to AI.
+3. Open Source intelligence and Index source. JavaScript/TypeScript AST symbols and import relationships include file lines. Python AST indexing requires Python on the host. Unsupported languages show inventory coverage.
+4. Use Sandbox editor for Monaco syntax highlighting, folding, line numbers, find/replace and file tabs. Edits autosave as private drafts; Save file creates a new workspace revision. Stale draft bases are rejected. Ctrl+S saves; File history shows prior saved contents.
+5. Open Engineering agent. Choose a mode and a focused question. Review the source-upload consent before sending source excerpts and diagnostics to Meta. Deep Investigation has a larger bounded tool budget; displayed activity is tool events, never hidden reasoning.
+6. Review source-grounded recommendations. In Sandbox editor, select the target file, choose AI fix and describe the reproducible issue. Review the original and proposed replacement in the side-by-side diff.
+7. Approve the exact proposal only if it is correct. Approval changes only the source copy. Static checks run independently and a failed patch is rolled back.
+8. Open Runtime & release. Customer tests require an authorized remote runner and explicit source-upload consent. Only the reviewed supported source files enter a fresh VM; no production credentials or host filesystem are exposed.
+9. For the exact maintained checkout arithmetic fixture, Verify maintained checkout fixture runs three independent fixed tests against the known broken and corrected versions. This is explicitly a maintained fixture test, not a customer-code isolation boundary or execution of a customer's test command.
+10. Export engineering receipt for revision, hashes, patch approval, checks and honest runtime status. Export Git patch provides a review artifact; it does not push, merge or deploy.
+
+GitHub App enrollment, project language servers, arbitrary terminals, automatic PRs and production publishing remain unavailable. A successful sample is not proof that an unrelated customer application is repaired.`},
+{id:'engineering-tools',title:'Engineering modes, tool policies and language coverage',category:'Engineering Studio',summary:'Ten modes over six restricted inspection tools with visible limits and cancellation.',body:`# Engineering modes and tools
+Quick Help uses fewer steps. Deep Investigation allows more evidence gathering. Architecture, AI Fix, Test, Security, Performance, Refactoring, Release and Maintenance modes focus the same permission-scoped source tools on different questions. No mode gains execution or approval authority.
+
+Use Language & tool coverage in the Engineering agent tab to inspect and enable or disable registered read-only tools in your own workspace. Tool arguments are validated server-side. Requests are bounded by model calls, tool calls, evidence bytes, provider budgets and a 150-second job timeout. Cancel investigation aborts provider work. A server restart marks unfinished jobs interrupted rather than claiming completion.
+
+Architecture builds modules and dependency edges from the current source index. Route candidates come from syntax and are labelled inferred. Framework names come from manifest declarations; they do not prove dependencies are installed. Source search is literal and returns actual paths/lines. No project LSP, debugger or blanket all-language support is claimed.`},
+
 {id:'quickstart',title:'Your first verified recovery',category:'Start here',summary:'Create a demo preview, find a release-blocking fault, approve a repair and export the evidence.',body:`# Your first verified recovery
 1. Open Sandbox in the left navigation and select Create sandbox.
 2. Give it a name, select the included IRIZA checkout demo and choose its lifetime.

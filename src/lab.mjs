@@ -7,6 +7,7 @@ export const scenarios = {
   broken_deployment: {title:'Broken critical route',action:'rollback_lab_release'}
 };
 export function workerEnvironment(source=process.env){return Object.fromEntries(['PATH','Path','SystemRoot','WINDIR','TEMP','TMP','LANG'].filter(k=>typeof source[k]==='string').map(k=>[k,source[k]]));}
+let activeWorkers=0;
 export class Lab {
   constructor() { this.config='valid'; this.deployment='stable'; this.revision=0; this.scenario=null; this.logs=[]; }
   log(event,data={}){this.logs.push({at:new Date().toISOString(),event,...data});if(this.logs.length>100)this.logs.shift();}
@@ -16,8 +17,8 @@ export class Lab {
     await this.stopWorker();this.config=snapshot.config;this.deployment=snapshot.deployment;this.scenario=snapshot.scenario;this.revision++;
     if(snapshot.running)await this.startWorker();this.log('snapshot.restored',{revision:this.revision});
   }
-  async start() {
-    await this.startWorker();
+  async start({worker=true}={}) {
+    if(worker)await this.startWorker();
     this.proxy = http.createServer(async (req,res) => {
       if (!['/','/health','/checkout'].includes(req.url)) {res.writeHead(404);res.end();return;}
       try {
@@ -29,7 +30,7 @@ export class Lab {
     this.proxy.listen(0,'127.0.0.1'); await once(this.proxy,'listening'); this.port=this.proxy.address().port;
   }
   async startWorker() {
-    const child=fork(new URL('./lab-worker.mjs',import.meta.url),[],{stdio:['ignore','ignore','ignore','ipc'],env:workerEnvironment(),execArgv:[]}); this.worker=child;
+    const limit=Number(process.env.RESCUE_MAX_SAMPLE_WORKERS||100);if(activeWorkers>=limit)throw Error('Sample worker capacity reached. Stop an existing preview and retry.');activeWorkers++;let released=false;const release=()=>{if(!released){released=true;activeWorkers--;}};let child;try{child=fork(new URL('./lab-worker.mjs',import.meta.url),[],{stdio:['ignore','ignore','ignore','ipc'],env:{...workerEnvironment(),UV_THREADPOOL_SIZE:'1',MALLOC_ARENA_MAX:'2'},execArgv:['--v8-pool-size=1','--max-old-space-size=96']});}catch(e){release();throw e;}child.once('exit',release);child.once('error',release);this.worker=child;
     const timer=setTimeout(()=>child.kill(),5000);
     try { const [msg]=await Promise.race([once(child,'message'),once(child,'exit').then(()=>{throw Error('Lab worker failed');})]); this.workerPort=msg.port; }
     finally {clearTimeout(timer);}

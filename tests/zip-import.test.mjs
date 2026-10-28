@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {crc32,deflateRawSync} from 'node:zlib';
+import {inspectZip,archivePath} from '../src/zip-import.mjs';
+import {sourcePath,ProjectWorkbench} from '../src/project-workbench.mjs';
+import {createApp} from '../src/server.mjs';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';import path from 'node:path';
+
+import {zipFixture} from './helpers/zip-fixture.mjs';
+
+
+test('ZIP quarantine validates UTF-8 source, strips common root, excludes secrets and never executes source',async()=>{const archive=await inspectZip(zipFixture([{path:'demo/app.ts',content:'throw Error("must never run")'},{path:'demo/.env',content:'private value'},{path:'demo/index.html',content:'<main>app</main>'}]),sourcePath);assert.equal(archive.files.length,2);assert.equal(archive.files[0].path,'app.ts');assert.equal(archive.codeExecuted,false);assert.equal(archive.skipped.length,1);assert.equal(archive.sha256.length,64);});
+test('ZIP rejects traversal, absolute/drive paths, links, duplicates and bombs atomically',async()=>{for(const p of ['../evil.js','/evil.js','C:/evil.js','a/../evil.js','a\\evil.js']){assert.equal(archivePath(p),false);await assert.rejects(async()=>inspectZip(zipFixture([{path:p,content:'x'}]),sourcePath));}await assert.rejects(()=>inspectZip(zipFixture([{path:'link.js',mode:0xa1ff,content:'target'}]),sourcePath),/links/);await assert.rejects(()=>inspectZip(zipFixture([{path:'a.js'},{path:'A.js'}]),sourcePath),/Duplicate/);await assert.rejects(()=>inspectZip(zipFixture([{path:'huge.js',content:'x',claimedSize:20000000}]),sourcePath),/expansion/);await assert.rejects(()=>inspectZip(zipFixture([{path:'empty.txt',content:'no sources'}]),sourcePath),/no supported/);});
+test('ZIP import API persists a real source copy and failed imports create no project',async()=>{const dir=await mkdtemp(path.join(tmpdir(),'rescue-zip-')),app=await createApp({port:0,dataDir:dir,token:'zip-test-operator-token-at-least-32-characters'});try{const call=async input=>fetch(`http://127.0.0.1:${app.port}/api/v1/projects/upload`,{method:'POST',headers:{Authorization:'Bearer '+app.token,'Content-Type':'application/json'},body:JSON.stringify(input)});const r=await call({name:'Uploaded project',archive:zipFixture([{path:'package.json',content:'{}'},{path:'app.ts',content:'export function real() {return 42;}'}]).toString('base64')});assert.equal(r.status,201);const p=await r.json();assert.equal(p.kind,'upload');assert.equal(p.files.length,2);const wb=new ProjectWorkbench(app.store,app.platform,app.connections||{list:()=>({repositories:[],agents:[]})},app.studio,null);assert((await wb.intelligence(p.key)).symbols.some(s=>s.name==='real'));const before=wb.list().length;assert.equal((await call({name:'Invalid project',archive:zipFixture([{path:'../escape.js',content:'x'}]).toString('base64')})).status,400);assert.equal(wb.list().length,before);}finally{await app.close();await rm(dir,{recursive:true,force:true});}});

@@ -12,3 +12,5 @@
 
 - Do not edit, deploy, migrate, repair or change the parent IRIZA TASTE project or its database/authentication. Owner explicitly instructed to leave everything about TASTE alone. RESCUE remains its own nested project.
 - Prior RESCUE auth-return additions in two parent TASTE files were exactly reversed. Do not reapply them. Shared TASTE sign-in preparation is paused, not live.
+
+- Subsequent owner clarification authorizes TASTE hosting-runtime recovery only, without environment/source/function/database/deployment-file edits. Its existing supervisor was run once; public routes returned200 and environment/supervisor/entrypoint checksums matched. This is not permission to edit TASTE code or configuration.

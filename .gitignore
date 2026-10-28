@@ -10,3 +10,8 @@ artifacts/
 docs/reference/
 *.zip
 *.tar.gz
+
+# Reproducible generated Monaco assets: npm run build:editor
+public/monaco/
+
+!public/engineering-demo.zip

@@ -1,9 +1,9 @@
 import {writeFile} from 'node:fs/promises';
 import {guides} from '../src/guides.mjs';
-const spec={openapi:'3.1.0',info:{title:'IRIZA RESCUE Sandbox Studio API',version:'1.0.0',description:'Local single-owner API. Confirmed future domain: rescue.iriza.online. No production repair or arbitrary repository execution.'},servers:[{url:'http://127.0.0.1:4310/api/v1'}],security:[{bearerAuth:[]}],components:{securitySchemes:{bearerAuth:{type:'http',scheme:'bearer',description:'Operator token, or sandbox:read key for documented read routes. Read keys expire in 24 hours.'}}},paths:{}};
+const spec={openapi:'3.1.0',info:{title:'IRIZA RESCUE Sandbox Studio API',version:'0.4.0',description:'Account-scoped engineering workspaces. Domain: rescue.iriza.online. No automatic merge/deploy or primary-host customer-code execution.'},servers:[{url:'http://127.0.0.1:4310/api/v1'}],security:[{bearerAuth:[]}],components:{securitySchemes:{bearerAuth:{type:'http',scheme:'bearer',description:'Operator token, or sandbox:read key for documented read routes. Read keys expire in 24 hours.'}}},paths:{}};
 function endpoint(route,method,summary,{properties,required,scope='operator',description=''}={}){
   const operation={summary,description:description||`Required credential: ${scope}.`, 'x-credential-scope':scope,responses:{200:{description:'Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test.'},400:{description:'Invalid input, resource limit, stale approval or invalid lifecycle transition'},401:{description:'Missing, expired or invalid bearer token'},403:{description:'Insufficient scope or rejected origin/host'},404:{description:'Unknown API route'}}};
-  if(route.includes('{id}'))operation.parameters=[{name:'id',in:'path',required:true,schema:{type:'string'}}];
+  const params=[...route.matchAll(/\{([^}]+)\}/g)].map(m=>m[1]);if(params.length)operation.parameters=params.map(name=>({name,in:'path',required:true,schema:{type:'string'}}));
   if(method==='post')operation.requestBody={required:true,content:{'application/json':{schema:{type:'object',properties:properties||{},...(required?{required}:{}),maxProperties:12}}}};
   spec.paths[route]??={};spec.paths[route][method]=operation;
 }
@@ -67,6 +67,16 @@ endpoint('/environments','post','Save environment metadata; variable names only'
 endpoint('/environments/{id}','post','Edit environment planning metadata');
 endpoint('/environments/{id}/archive','post','Archive planning profile');endpoint('/environments/{id}/restore','post','Restore planning profile');
 endpoint('/scans','get','List saved bounded scan reports');endpoint('/scans','post','Run bounded static source checks and connected observations',{properties:{localPath:{type:'string'},includeLocal:{type:'boolean'},refreshWebsites:{type:'boolean'}}});endpoint('/scans/{id}','get','Read a saved coverage and findings report');
+endpoint('/projects/upload','post','Validate a ZIP in memory and import supported source into tenant SQLite',{properties:{name:{type:'string',minLength:2,maxLength:80},archive:{type:'string',contentEncoding:'base64',maxLength:11184812}},required:['name','archive'],scope:'authenticated-workspace'});
+for(const op of ['intelligence','search','history','receipt'])endpoint('/projects/{key}/'+op,'get','Read selected project '+op,{scope:'authenticated-workspace'});
+endpoint('/projects/{key}/draft','post','Save or discard a bounded draft with version/hash conflict checks',{properties:{path:{type:'string'},baseHash:{type:'string'},version:{type:'integer'},content:{type:'string',maxLength:262144},discard:{type:'boolean'}},required:['path'],scope:'authenticated-workspace'});
+endpoint('/projects/{key}/fixture-verify','post','Test exact maintained arithmetic fixture only; not customer code',{scope:'authenticated-workspace'});
+endpoint('/projects/{key}/investigations','get','List persisted engineering jobs and mode budgets',{scope:'authenticated-workspace'});
+endpoint('/projects/{key}/investigations','post','Start a cancellable bounded Meta tool investigation',{properties:{mode:{type:'string'},question:{type:'string',minLength:8,maxLength:2000},confirmSourceUpload:{const:true}},required:['mode','question','confirmSourceUpload'],scope:'authenticated-workspace'});
+endpoint('/projects/{key}/investigations/{jobId}','get','Read selected project job events and result',{scope:'authenticated-workspace'});
+endpoint('/projects/{key}/investigations/{jobId}/cancel','post','Cancel selected project investigation',{scope:'authenticated-workspace'});
+endpoint('/engineering/tools','get','Read restricted tools and language capability registry',{scope:'authenticated-workspace'});
+endpoint('/engineering/tools','post','Configure an existing read-only tool for this workspace',{properties:{id:{type:'string'},enabled:{type:'boolean'}},required:['id','enabled'],scope:'authenticated-workspace'});
 await writeFile(new URL('../docs/openapi.json',import.meta.url),JSON.stringify(spec,null,2));
 await writeFile(new URL('../docs/USER_GUIDE.md',import.meta.url),'# IRIZA RESCUE · Complete local user guide\n\n'+guides.map(g=>g.body).join('\n\n---\n\n'));
 console.log('Generated OpenAPI and complete user guide from implemented routes and in-app documentation.');

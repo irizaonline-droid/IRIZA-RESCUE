@@ -1,3 +1,5 @@
+> Engineering Studio 0.4.0 update (2026-10-28): see [CURRENT_CAPABILITIES_AUDIT.md](CURRENT_CAPABILITIES_AUDIT.md) for executed ZIP, Monaco, live Meta and maintained before/after results. The historical audit below remains evidence of earlier states. Customer remote execution and GitHub App/PR automation remain unverified or unavailable.
+
 # IRIZA RESCUE — functionality audit
 
 > Latest project-scoped workbench update: [Project workbench release](docs/PROJECT_WORKBENCH_RELEASE.md). Includes source copies/editor, project CRUD, dependency advisory lookup, live Meta patch proposals, exact approval, parser verification and export. 56 tests pass. The Vercel adapter's lifecycle is mock-tested; an actual connector attempt returned 403, so no successful customer runtime or production release is claimed. Earlier NOT IMPLEMENTED entries for source editing/proposals are superseded within this bounded scope.

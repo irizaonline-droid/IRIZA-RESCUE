@@ -7,13 +7,15 @@ case "$RID" in *[!0-9TZ]*|'') echo "Invalid release ID" >&2; exit 2;; esac
 RELEASE="$BASE/releases/$RID"
 NODE='/opt/alt/alt-nodejs24/root/usr/bin/node'
 export PATH="/opt/alt/alt-nodejs24/root/usr/bin:$PATH"
+export UV_THREADPOOL_SIZE=1 MALLOC_ARENA_MAX=2
+export NODE_OPTIONS="--v8-pool-size=1 --max-old-space-size=256"
 PREVIOUS="$(readlink -f "$BASE/current" 2>/dev/null || true)"
 SUCCESS=0
 rollback(){
  rc=$?
  if [ "$SUCCESS" -ne 1 ]; then
   if [ -f "$BASE/data/config/production.env.before-$RID" ]; then cp -p "$BASE/data/config/production.env.before-$RID" "$BASE/data/config/production.env"; fi
-  if [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then ln -sfn "$PREVIOUS" "$BASE/current"; fi
+  if [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then ln -sfn "$PREVIOUS" "$BASE/current"; /bin/sh "$BASE/bin/rescue-supervisor.sh" || true; fi
   printf '__RESCUE_ACTIVATION_FAILED__=%s\n' "$rc"
  fi
  exit "$rc"
@@ -23,8 +25,12 @@ mkdir -p "$RELEASE"
 tar -xzf "$BASE/releases/rescue-$RID.tar.gz" -C "$RELEASE"
 cd "$RELEASE"
 "$NODE" --version
-npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-npm run check
+if [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS/node_modules" ] && cmp -s "$PREVIOUS/package-lock.json" "$RELEASE/package-lock.json"; then
+ ln -s "$PREVIOUS/node_modules" "$RELEASE/node_modules"
+else
+ npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+fi
+for f in src/*.mjs public/*.js; do "$NODE" --check "$f"; done
 if [ -f "$BASE/data/config/production.env" ]; then cp -p "$BASE/data/config/production.env" "$BASE/data/config/production.env.before-$RID"; fi
 mv "$BASE/data/config/production.env.incoming" "$BASE/data/config/production.env"
 chmod 600 "$BASE/data/config/production.env"
@@ -39,12 +45,14 @@ exec 9>"$BASE/data/run/supervisor.lock"
 /usr/bin/flock -n 9 || exit 0
 pid="$(cat "$BASE/data/run/server.pid" 2>/dev/null || true)"
 if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
- if curl -fsS --max-time 5 http://127.0.0.1:18106/healthz >/dev/null; then exit 0; fi
+ expected="$(readlink -f "$BASE/current")"
  cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)"
- case "$cwd" in "$BASE"/releases/*) kill "$pid"; sleep 2;; *) echo 'Refusing to replace unknown process'; exit 1;; esac
+ if [ "$cwd" = "$expected" ] && curl -fsS --max-time 5 http://127.0.0.1:18106/healthz >/dev/null; then exit 0; fi
+ case "$cwd" in "$BASE"/releases/*) kill "$pid"; tries=0; while kill -0 "$pid" 2>/dev/null && [ "$tries" -lt 15 ]; do tries=$((tries+1)); sleep 1; done; if kill -0 "$pid" 2>/dev/null; then echo "Old RESCUE process is still stopping"; exit 1; fi;; *) echo 'Refusing to replace unknown process'; exit 1;; esac
 fi
 cd "$BASE/current"
-nohup "$NODE" --env-file="$BASE/data/config/production.env" src/server.mjs >>"$BASE/data/logs/runtime.log" 2>&1 </dev/null 9>&- &
+export UV_THREADPOOL_SIZE=1 MALLOC_ARENA_MAX=2
+nohup "$NODE" --max-old-space-size=384 --v8-pool-size=1 --env-file="$BASE/data/config/production.env" src/server.mjs >>"$BASE/data/logs/runtime.log" 2>&1 </dev/null 9>&- &
 echo $! > "$BASE/data/run/server.pid"
 SUPERVISOR
 chmod 700 "$BASE/bin/rescue-supervisor.sh"
@@ -61,6 +69,10 @@ PROXY
 chmod 600 "$BASE/application/passenger.cjs"
 if [ -f "$BASE/public_html/.htaccess" ]; then cp -p "$BASE/public_html/.htaccess" "$BASE/data/config/htaccess.before-$RID"; fi
 cat > "$BASE/public_html/.htaccess" <<'HTACCESS'
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteRule ^ https://rescue.iriza.online%{REQUEST_URI} [R=308,L]
 PassengerEnabled on
 PassengerAppRoot /home/mrcreati/domains/rescue.iriza.online/application
 PassengerBaseURI /
