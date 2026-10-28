@@ -52,14 +52,18 @@ if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
 fi
 cd "$BASE/current"
 export UV_THREADPOOL_SIZE=1 MALLOC_ARENA_MAX=2
-nohup "$NODE" --max-old-space-size=384 --v8-pool-size=1 --env-file="$BASE/data/config/production.env" src/server.mjs >>"$BASE/data/logs/runtime.log" 2>&1 </dev/null 9>&- &
+nohup /usr/bin/setsid "$NODE" --max-old-space-size=384 --v8-pool-size=1 --env-file="$BASE/data/config/production.env" src/server.mjs >>"$BASE/data/logs/runtime.log" 2>&1 </dev/null 9>&- &
 echo $! > "$BASE/data/run/server.pid"
 SUPERVISOR
 chmod 700 "$BASE/bin/rescue-supervisor.sh"
 /bin/sh "$BASE/bin/rescue-supervisor.sh"
 attempt=0
-until curl -fsS --max-time 3 http://127.0.0.1:18106/healthz >"$BASE/data/run/health.json"; do
- attempt=$((attempt+1)); [ "$attempt" -lt 15 ] || exit 1; sleep 2
+until curl -fsS --max-time 3 http://127.0.0.1:18106/healthz >"$BASE/data/run/health.json" && grep -Fq "\"release\":\"$RID\"" "$BASE/data/run/health.json"; do
+ attempt=$((attempt+1)); [ "$attempt" -lt 20 ] || exit 1
+ # A scheduled supervisor may hold the lock briefly. Retry this release rather
+ # than treating the previous listener's HTTP 200 as a successful activation.
+ /bin/sh "$BASE/bin/rescue-supervisor.sh"
+ sleep 2
 done
 "$NODE" --env-file="$BASE/data/config/production.env" --input-type=module -e "const r=await fetch('http://127.0.0.1:18106/api/v1/projects');if(r.status!==401)process.exit(1);const a=await fetch('http://127.0.0.1:18106/api/v1/projects',{headers:{Authorization:'Bearer '+process.env.RESCUE_API_TOKEN}});if(a.status!==200)process.exit(2);const h=await (await fetch('http://127.0.0.1:18106/healthz')).json();if(h.release!==process.env.RESCUE_RELEASE)process.exit(3);console.log('AUTH_AND_RELEASE_GATES_PASS');"
 cat > "$BASE/application/passenger.cjs" <<'PROXY'

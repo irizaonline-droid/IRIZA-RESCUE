@@ -24,3 +24,11 @@ The old 500-file / 8 MB workspace rejection prevented the supplied MR-CREATIVIST
 General customer runtime, interactive debugger/LSP, arbitrary terminal, private GitHub App installation, multi-file transactional AI edits, customer PR creation and customer hosting deployment are not implemented or connected. No automatic merge/deploy is added. TASTE source, environment, database and functions were untouched.
 
 Official model and reasoning references: https://dev.meta.ai/docs/models and https://dev.meta.ai/docs/reasoning.
+
+## Release verification
+
+Published to rescue.iriza.online as release 20261028T203509Z, application source ca068c1af9d5bba9f869e3dda79b251bbdda4d72. Archive SHA-256: 9942de6b883648b177c5bff23ccfeba14dfb09d5e6daec3e922893a16ecc260c. Five RESCUE databases received consistent SQLite backups; existing production configuration was preserved except release ID.
+
+77 regression tests and 89 module syntax checks passed; eight focused import/model/preview/ZIP tests passed after the final preview change; dependency audit reported zero vulnerabilities. Real browser confirmed 514 imported files, 1,805 symbols / 2,040 import edges, an actual Monaco file, equal 307px cards with equal button offsets, a live Wonder request and a script-blocked HTML preview. The reported undefined-status error did not recur in the executed source-index journey; the exact earlier stack trace was unavailable.
+
+The first activation failed its exact-release check and rolled back. Deployment now waits for the requested release (rather than any HTTP 200), retries the RESCUE supervisor when its lock is busy, and starts the server through setsid so it survives closure of the hosting terminal. These deployment-helper changes are a follow-up to the application archive. Only RESCUE hosting paths and its own supervisor cron entry were changed.
