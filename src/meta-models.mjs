@@ -1,0 +1,13 @@
+import {createHash} from 'node:crypto';
+const cache=new Map();
+export function engineeringModel(id){return /^muse-(?:spark|wonder)-[0-9]+\.[0-9]+(?:-contributor)?$/.test(id);}
+export function reasoningOptions(id){return ['auto','minimal','low','medium','high',...(['muse-spark-1.3','muse-wonder-1.0'].includes(id)?['xhigh','max']:[])];}
+export async function discoverMetaModels({apiKey=process.env.MODEL_API_KEY||process.env.META_AI_API,fetcher=fetch,refresh=false}={}){
+ if(!apiKey)return {configured:false,models:[],message:'Configure the server Meta credential to discover available models.'};
+ const key=createHash('sha256').update(apiKey).digest('hex'),previous=cache.get(key);if(!refresh&&previous&&Date.now()-previous.loaded<300000)return previous.value;
+ const response=await fetcher('https://api.meta.ai/v1/models',{headers:{Authorization:'Bearer '+apiKey},signal:AbortSignal.timeout(20000)});if(!response.ok)throw Error('Meta model discovery failed (HTTP '+response.status+'). Existing project model settings were preserved.');
+ let raw='',size=0;for await(const chunk of response.body){size+=chunk.length;if(size>262144)throw Error('Meta model catalogue exceeded its response budget');raw+=Buffer.from(chunk).toString('utf8');}
+ const data=JSON.parse(raw);if(!Array.isArray(data.data))throw Error('Meta returned an invalid model catalogue');
+ const value={configured:true,checkedAt:new Date().toISOString(),models:data.data.filter(m=>typeof m.id==='string'&&engineeringModel(m.id)).map(m=>({id:m.id,family:m.id.startsWith('muse-wonder')?'Muse Wonder':'Muse Spark',access:'CATALOGUE_LISTED',reasoning:reasoningOptions(m.id),installation:'SERVER_SIDE_META_API',note:'Model is listed for this credential. Inference success is verified separately.'}))};cache.set(key,{loaded:Date.now(),value});return value;
+}
+export async function configureProjectModel(workbench,key,input,options){workbench.project(key);if(!input||Object.keys(input).some(k=>!['model','reasoning'].includes(k)))throw Error('Expected model and reasoning settings');const catalogue=await discoverMetaModels(options);if(!catalogue.models.some(m=>m.id===input.model))throw Error('Select a coding model listed by this server Meta account');if(!reasoningOptions(input.model).includes(input.reasoning||'auto'))throw Error('Unsupported reasoning effort for selected model');workbench.save(key,{...workbench.meta(key),engineeringModel:input.model,reasoningEffort:input.reasoning||'auto'});workbench.store.event('project.model.configured',{key,model:input.model,reasoning:input.reasoning||'auto'});return {model:input.model,reasoning:input.reasoning||'auto'};}

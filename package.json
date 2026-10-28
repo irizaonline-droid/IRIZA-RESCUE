@@ -1,6 +1,6 @@
 {
   "name": "iriza-rescue",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -28,6 +28,7 @@
     "ai": "7.0.155",
     "codemirror": "^6.0.2",
     "monaco-editor": "0.56.0",
+    "parse5": "8.0.1",
     "typescript": "5.9.3",
     "yauzl": "3.4.0",
     "zod": "4.6.7"

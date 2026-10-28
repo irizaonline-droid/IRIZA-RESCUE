@@ -1,3 +1,4 @@
+import {workspaceLimits} from './workspace-limits.mjs';
 import {publicRepositoryArchive} from './public-repository-archive.mjs';
 import {pythonSyntax} from './source-syntax.mjs';
 import {mkdtemp,mkdir,writeFile,rm} from 'node:fs/promises';
@@ -28,11 +29,11 @@ export async function inspectRepository(connections,id){
 async function inspectPublicArchive(repo,fetcher){
  const files=await publicRepositoryArchive(repo,fetcher),temp=await mkdtemp(path.join(tmpdir(),'rescue-public-source-')),selected=[],skipped=[];let bytes=0;
  const allowed=f=>f.path.length<220&&!/[<>:"\\|?*]/.test(f.path)&&!f.path.startsWith('/')&&f.path.split('/').every(p=>p&&p!=='.'&&p!=='..'&&!/^(?:\.env|\.git$|node_modules$|dist$|build$|data$|\.ssh$|\.aws$|\.azure$|\.kube$|credentials|secrets|service[-_]account)/i.test(p))&&(/\.(?:mjs|cjs|js|ts|tsx|jsx|json|yml|yaml|py|php|go|rs|md|toml)$/i.test(f.path)||/(?:^|\/)(?:Dockerfile|requirements.txt)$/.test(f.path));
- try{await mkdir(path.join(temp,'.git'));for(const f of files){if(!allowed(f)){skipped.push({path:f.path,reason:'Excluded path or unsupported/binary format'});continue;}if(f.size>262144||selected.length>=500||bytes+f.size>8*1024*1024){skipped.push({path:f.path,reason:'Source scan resource limit'});continue;}const target=path.join(temp,...f.path.split('/'));await mkdir(path.dirname(target),{recursive:true});await writeFile(target,f.content);selected.push(f);bytes+=f.size;}
+ try{await mkdir(path.join(temp,'.git'));for(const f of files){if(!allowed(f)){skipped.push({path:f.path,reason:'Excluded path or unsupported/binary format'});continue;}if(f.size>workspaceLimits().maxFileBytes||bytes+f.size>workspaceLimits().maxSourceBytes){skipped.push({path:f.path,reason:'Source scan resource limit'});continue;}const target=path.join(temp,...f.path.split('/'));await mkdir(path.dirname(target),{recursive:true});await writeFile(target,f.content);selected.push(f);bytes+=f.size;}
  const local=await inspectLocalProject(temp);local.root=repo.url+' @ '+repo.commit;local.source='github-public-archive';
  const syntax=await pythonSyntax(selected.filter(f=>f.path.endsWith('.py')).map(f=>({path:f.path,source:f.content.toString('utf8')})));
  for(const r of syntax.results.filter(r=>r.status==='FAIL'))local.findings.push({severity:'ERROR',path:r.path,line:r.line,check:'python-syntax',message:r.message});
  const unsupported=skipped.filter(s=>s.reason==='Source scan resource limit').length;
- return {repositoryId:repo.id,fullName:repo.fullName,commit:repo.commit,transport:'PUBLIC_PINNED_ARCHIVE',local,syntax,findings:local.findings,filesAvailable:files.length,eligibleFiles:selected.length+unsupported,filesInspected:local.filesChecked,failed:[],skipped:skipped.slice(0,500),partial:unsupported>0||!!local.skipped.limits||!!local.skipped.large,treeTruncated:false,files:files.slice(0,500).map(f=>({path:f.path,bytes:f.size,selected:selected.some(s=>s.path===f.path)})),limits:{maxSourceFiles:500,maxFileBytes:262144,maxSourceBytes:8388608,maxArchiveBytes:16777216},codeExecuted:false};
+ return {repositoryId:repo.id,fullName:repo.fullName,commit:repo.commit,transport:'PUBLIC_PINNED_ARCHIVE',local,syntax,findings:local.findings,filesAvailable:files.length,eligibleFiles:selected.length+unsupported,filesInspected:local.filesChecked,failed:[],skipped:skipped.slice(0,500),partial:unsupported>0||!!local.skipped.limits||!!local.skipped.large,treeTruncated:false,files:files.slice(0,500).map(f=>({path:f.path,bytes:f.size,selected:selected.some(s=>s.path===f.path)})),limits:{maxSourceFiles:5000,maxFileBytes:workspaceLimits().maxFileBytes,maxSourceBytes:workspaceLimits().maxSourceBytes,maxArchiveBytes:16777216},codeExecuted:false};
  }finally{await rm(temp,{recursive:true,force:true});}
 }

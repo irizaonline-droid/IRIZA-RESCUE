@@ -1,0 +1,4 @@
+const mb=1024*1024;
+function limit(name,fallback,min,max){const n=Number(process.env[name]);return Number.isFinite(n)&&n>=min&&n<=max?Math.floor(n):fallback;}
+export function workspaceLimits(){return {maxFiles:null,maxSourceBytes:limit('RESCUE_SOURCE_MAX_MB',64,8,256)*mb,maxFileBytes:limit('RESCUE_SOURCE_FILE_MAX_MB',4,1,16)*mb,fileCountPolicy:'No workspace file-count ceiling; archive traversal and byte/resource budgets remain enforced.'};}
+export function checkWorkspaceSize(files){const limits=workspaceLimits(),bytes=files.reduce((n,f)=>n+Buffer.byteLength(f.content),0);if(bytes>limits.maxSourceBytes)throw Error(`Source copy requires ${(bytes/mb).toFixed(1)} MB; configured workspace budget is ${limits.maxSourceBytes/mb} MB. Increase RESCUE_SOURCE_MAX_MB on a suitably provisioned host.`);return {files:files.length,bytes,...limits};}

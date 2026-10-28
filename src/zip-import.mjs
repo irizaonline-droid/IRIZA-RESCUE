@@ -1,8 +1,9 @@
+import {workspaceLimits} from './workspace-limits.mjs';
 import yauzl from 'yauzl';
 import {crc32} from 'node:zlib';
 import {createHash} from 'node:crypto';
 
-export const ZIP_LIMITS=Object.freeze({compressed:8*1024*1024,expanded:16*1024*1024,source:8*1024*1024,entries:1000,files:500,file:262144,ratio:200});
+export const ZIP_LIMITS=Object.freeze({compressed:8*1024*1024,expanded:64*1024*1024,source:workspaceLimits().maxSourceBytes,entries:5000,files:5000,file:workspaceLimits().maxFileBytes,ratio:200});
 let activeRequests=0;
 export function admitZipUpload(res){if(activeRequests>=2)return false;activeRequests++;let released=false;const release=()=>{if(!released){released=true;activeRequests--;}};res.once('finish',release);res.once('close',release);return true;}
 export function archivePath(name){
@@ -20,7 +21,7 @@ export function inspectZip(buffer,accept){
   const timer=setTimeout(()=>finish(Error('ZIP validation exceeded 15 seconds')),15000);
   yauzl.fromBuffer(buffer,{lazyEntries:true,strictFileNames:true,validateEntrySizes:true},(error,opened)=>{
    if(error)return finish(error);zip=opened;
-   if(zip.entryCount>ZIP_LIMITS.entries)return finish(Error('ZIP exceeds 1000 entries'));
+   if(zip.entryCount>ZIP_LIMITS.entries)return finish(Error('ZIP exceeds 5000 archive entries'));
    zip.on('error',error=>finish(error));
    zip.on('entry',entry=>{(async()=>{
     if(++entries>ZIP_LIMITS.entries)throw Error('ZIP exceeds entry limit');
@@ -33,8 +34,8 @@ export function inspectZip(buffer,accept){
     expanded+=entry.uncompressedSize;
     if(expanded>ZIP_LIMITS.expanded||entry.uncompressedSize>Math.max(1048576,entry.compressedSize*ZIP_LIMITS.ratio))throw Error('ZIP expansion budget exceeded');
     if(name.endsWith('/')){zip.readEntry();return;}
-    if(!accept(name)||entry.uncompressedSize>ZIP_LIMITS.file){skipped.push({path:name,reason:'Excluded path, unsupported type, or file above 256 KB'});zip.readEntry();return;}
-    if(files.length>=ZIP_LIMITS.files)throw Error('ZIP exceeds 500 supported source files');
+    if(!accept(name)||entry.uncompressedSize>ZIP_LIMITS.file){skipped.push({path:name,reason:'Excluded path, unsupported type, or file above configured source-file budget'});zip.readEntry();return;}
+    if(files.length>=ZIP_LIMITS.files)throw Error('ZIP exceeds archive entry budget');
     await new Promise((yes,no)=>zip.openReadStream(entry,(error,openedStream)=>{
      if(error)return no(error);stream=openedStream;const chunks=[];let size=0,checksum=0;
      stream.on('error',no);stream.on('data',chunk=>{size+=chunk.length;sourceBytes+=chunk.length;if(size>ZIP_LIMITS.file||sourceBytes>ZIP_LIMITS.source){stream.destroy(Error('ZIP source byte budget exceeded'));return;}checksum=crc32(chunk,checksum);chunks.push(chunk);});

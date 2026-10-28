@@ -27,3 +27,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px #fa28491c;outline-c
 @media(max-width:850px){.support-shell{grid-template-columns:1fr;height:auto;max-height:none}.support-aside{max-height:160px}.support-main{min-height:550px}.support-messages{max-height:450px}.hub-project-grid{grid-template-columns:1fr}}
 
 .rescue-code-editor{height:560px;min-height:340px}.monaco-diff-host{height:440px;min-width:0}.engineering-tabs{display:flex;gap:6px;overflow:auto;padding:8px;border-bottom:1px solid var(--border)}
+
+/* Equal project rows, aligned actions and consistent title slots. */
+.hub-project-grid{align-items:stretch;grid-auto-rows:1fr}.hub-project-card{height:100%!important;min-height:280px!important;box-sizing:border-box;display:flex;flex-direction:column}.hub-project-card h2{min-height:2.8em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.hub-project-card>p{min-height:2.4em}.hub-project-card .hub-card-facts{flex:1}.hub-project-card>.btn.wide{margin-top:auto}
+
+.muse-editor-commandbar,.muse-modelbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:16px;margin-bottom:16px;border:1px solid #303641;border-radius:12px;background:var(--bg-card,#171a22)}.muse-editor-commandbar>div:first-child{display:grid;gap:5px}.muse-empty{margin-bottom:16px;text-align:center;padding:40px!important}.muse-launch{margin-bottom:16px;border-top:2px solid #fa2849}.muse-preview{width:100%;height:60vh;background:white;border:1px solid #303641;border-radius:10px}.operation-active .muse-editor-commandbar{animation:muse-command-glow 1.6s infinite alternate}@keyframes muse-command-glow{to{box-shadow:0 0 24px #fa284925;border-color:#fa2849}}

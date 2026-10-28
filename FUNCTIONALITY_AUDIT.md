@@ -1,3 +1,5 @@
+> 0.4.1 update: [Muse Code Studio](docs/MUSE_CODE_STUDIO_041.md) records large imports, bounded compiler diagnostics, live coding-model selection and static HTML preview. Customer runtime/deployment remains unavailable without its authorized adapter.
+
 > Engineering Studio 0.4.0 update (2026-10-28): see [CURRENT_CAPABILITIES_AUDIT.md](CURRENT_CAPABILITIES_AUDIT.md) for executed ZIP, Monaco, live Meta and maintained before/after results. The historical audit below remains evidence of earlier states. Customer remote execution and GitHub App/PR automation remain unverified or unavailable.
 
 # IRIZA RESCUE — functionality audit
