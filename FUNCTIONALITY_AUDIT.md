@@ -1,3 +1,5 @@
+> Current complete status matrix: [CURRENT_CAPABILITIES_AUDIT.md](CURRENT_CAPABILITIES_AUDIT.md). All remaining requests are tracked in [REMAINING_TASKS.md](REMAINING_TASKS.md); unsupported customer execution and deployment are not labelled complete.
+
 > 0.4.2: [Easy Muse repair](docs/EASY_MUSE_REPAIR_042.md) adds ranked diagnostic-driven repair, actual sandbox application, rollback/progress counts, activity display and source-specific credential detection.
 
 > 0.4.1 update: [Muse Code Studio](docs/MUSE_CODE_STUDIO_041.md) records large imports, bounded compiler diagnostics, live coding-model selection and static HTML preview. Customer runtime/deployment remains unavailable without its authorized adapter.

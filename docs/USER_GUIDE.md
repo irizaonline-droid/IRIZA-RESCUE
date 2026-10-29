@@ -1,13 +1,53 @@
 # IRIZA RESCUE · Complete local user guide
 
+# Your easiest repair path
+1. Open your project, then Sandbox editor. Select Import & prepare source if your repository source has not been copied yet. Website-only projects must attach their matching source first.
+2. Select Find & repair errors. RESCUE collects source diagnostics and ranks repairable files automatically. You do not need to type an error description for detected failures.
+3. Select Prepare recommended repair. Muse receives the selected diagnostics and eligible source. The animated activity panel shows actual stages and the returned model request ID; it does not display private internal reasoning.
+4. Review the original and changed code. Select Repair sandbox. The change applies only to your copied source. New source errors trigger rollback; remaining pre-existing errors are counted separately.
+5. Inspect the changed file and verification result. Continue with other confirmed errors, then run independent application tests in an authorized isolated runner. Source checks alone do not prove the application works.
+6. Export the Git patch or engineering receipt. Customer repository pushes, PR creation and hosting publication are not connected in this release.
+
+## If the result says ENVIRONMENT REQUIRED
+Missing React/Next.js types, dependencies or aliases are environment gaps. They are not confirmed source defects. RESCUE will not invent code edits to silence them. Configure an authorized isolated runner before dependency-aware builds/tests. Use Report a different issue only when you have a different observed failure to describe.
+
+## If a file is withheld
+The repair list shows detected credential categories and line numbers without displaying their values. Files with detected literal credentials are not sent to Meta. Environment references such as process.env.TOKEN are permitted. Source-secret detection is conservative and cannot guarantee detection of every secret.
+
+## If the connection fails
+Wait for the request outcome, then refresh the project to inspect saved results before retrying a write. Expired account sessions return to sign-in; public accounts never require the local operator token.
+
+---
+
+# Muse models and reasoning
+1. Open your project and select Muse models or Models & reasoning.
+2. Choose a coding model returned by the server's Meta catalogue. A catalogue listing is not proof of successful inference.
+3. Select Test selected model to execute a real bounded API request. The result shows its request ID and live inference status.
+4. Choose supported reasoning effort and save the project setting. It applies to project investigations, evidence analysis and patch generation.
+
+Wonder 1.0 and five Spark variants accepted live requests during release testing. These are hosted API models; no model weights are installed on the hosting server. Higher reasoning may increase latency and token usage. Provider availability, permissions and request budgets still apply.
+
+---
+
+# Larger source imports
+The old 500-file workspace limit is removed. The tested MR-CREATIVIST revision imported 514 files and indexed 1,805 symbols. This is source inspection, not execution of the customer application.
+
+Default source-copy budget is 64 MB total and 4 MB per file. Hosting operators may configure RESCUE_SOURCE_MAX_MB (8–256) and RESCUE_SOURCE_FILE_MAX_MB (1–16), then restart RESCUE. Do not set unlimited resource consumption on a shared server.
+
+GitHub archive transport remains bounded to 16 MB compressed, 64 MB expanded and 5,000 entries. ZIP upload remains bounded to 8 MB compressed, 64 MB expanded and 5,000 entries. Local operator traversal is bounded to 20,000 files and depth 10. Secrets, symlinks, dependency directories and unsupported binary formats are excluded.
+
+TypeScript semantic checks cover up to 32 files / 512 KB separately from full supported syntactic indexing. Missing project dependencies are reported as unresolved environment. Static HTML preview blocks scripts, forms and external resources; dynamic application preview requires an isolated runner.
+
+---
+
 # Source engineering workflow
 1. Sign in to your independent RESCUE account. Open Projects, Add project, Upload a project ZIP.
 2. Choose an archive below 8 MB. RESCUE validates paths, links, file counts, expansion and UTF-8 source before saving a private copy. Import does not run code or send it to AI.
 3. Open Source intelligence and Index source. JavaScript/TypeScript AST symbols and import relationships include file lines. Python AST indexing requires Python on the host. Unsupported languages show inventory coverage.
 4. Use Sandbox editor for Monaco syntax highlighting, folding, line numbers, find/replace and file tabs. Edits autosave as private drafts; Save file creates a new workspace revision. Stale draft bases are rejected. Ctrl+S saves; File history shows prior saved contents.
 5. Open Engineering agent. Choose a mode and a focused question. Review the source-upload consent before sending source excerpts and diagnostics to Meta. Deep Investigation has a larger bounded tool budget; displayed activity is tool events, never hidden reasoning.
-6. Review source-grounded recommendations. In Sandbox editor, select the target file, choose AI fix and describe the reproducible issue. Review the original and proposed replacement in the side-by-side diff.
-7. Approve the exact proposal only if it is correct. Approval changes only the source copy. Static checks run independently and a failed patch is rolled back.
+6. Review source-grounded recommendations. In Sandbox editor, choose Find & repair errors, then Prepare recommended repair for a detected problem. Review the original and changed source in the side-by-side diff.
+7. Select Repair sandbox only if the exact change is correct. The action changes only the source copy. Source checks run independently, new errors trigger rollback and remaining existing errors are counted.
 8. Open Runtime & release. Customer tests require an authorized remote runner and explicit source-upload consent. Only the reviewed supported source files enter a fresh VM; no production credentials or host filesystem are exposed.
 9. For the exact maintained checkout arithmetic fixture, Verify maintained checkout fixture runs three independent fixed tests against the known broken and corrected versions. This is explicitly a maintained fixture test, not a customer-code isolation boundary or execution of a customer's test command.
 10. Export engineering receipt for revision, hashes, patch approval, checks and honest runtime status. Export Git patch provides a review artifact; it does not push, merge or deploy.
