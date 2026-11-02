@@ -7,12 +7,13 @@ const language=p=>({ts:'typescript',tsx:'typescript',js:'javascript',jsx:'javasc
 for(const defaults of [typescriptDefaults,javascriptDefaults]){defaults.setDiagnosticsOptions({noSemanticValidation:true,noSyntaxValidation:false});defaults.setCompilerOptions({allowNonTsExtensions:true,jsx:JsxEmit.Preserve});}
 let sequence=0;
 function theme(){return document.documentElement.dataset.theme==='light'?'vs':'vs-dark';}
+function preferences(){try{const p=JSON.parse(localStorage.getItem('rescue-editor-preferences')||'{}');return {fontSize:Math.min(24,Math.max(10,Number(p.fontSize)||13)),wordWrap:p.wordWrap==='on'?'on':'off',minimap:{enabled:p.minimap!==false}};}catch{return {fontSize:13,wordWrap:'off',minimap:{enabled:true}};}}
 window.createRescueEditor=(parent,source,path,onChange)=>{
  const model=monaco.editor.createModel(source,language(path),monaco.Uri.parse('inmemory://workspace/'+(++sequence)+'/'+path));
- const editor=monaco.editor.create(parent,{model,theme:theme(),automaticLayout:true,fontSize:13,lineNumbers:'on',minimap:{enabled:true},scrollBeyondLastLine:false,wordWrap:'off',tabSize:2,ariaLabel:'Sandbox source editor',renderValidationDecorations:'on'});
+ const editor=monaco.editor.create(parent,{model,theme:theme(),automaticLayout:true,lineNumbers:'on',scrollBeyondLastLine:false,tabSize:2,ariaLabel:'Sandbox source editor',renderValidationDecorations:'on',...preferences()});
  const listener=model.onDidChangeContent(()=>onChange(model.getValue()));
  const observer=new MutationObserver(()=>monaco.editor.setTheme(theme()));observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
- return {destroy(){observer.disconnect();listener.dispose();editor.dispose();model.dispose();},focus(){editor.focus();},revealLine(line){editor.revealLineInCenter(line);editor.setPosition({lineNumber:line,column:1});editor.focus();}};
+ return {destroy(){observer.disconnect();listener.dispose();editor.dispose();model.dispose();},focus(){editor.focus();},preferences(){editor.updateOptions(preferences());},async command(id){const action=editor.getAction(id);if(!action||!action.isSupported())return false;await action.run();return true;},revealLine(line){editor.revealLineInCenter(line);editor.setPosition({lineNumber:line,column:1});editor.focus();}};
 };
 window.createRescueDiff=(parent,original,modified,path)=>{
  const a=monaco.editor.createModel(original,language(path)),b=monaco.editor.createModel(modified,language(path));

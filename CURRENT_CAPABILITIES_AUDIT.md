@@ -1,3 +1,5 @@
+> November 2 local upgrade: see [ENGINEERING_UPGRADE_AUDIT.md](ENGINEERING_UPGRADE_AUDIT.md), [SANDBOX_VALIDATION.md](SANDBOX_VALIDATION.md) and [RELEASE_READINESS.md](RELEASE_READINESS.md). Full RESCUE 4.0 acceptance remains unfinished.
+
 # Current capabilities audit — 2026-10-29
 
 Current source: 0.4.3. Statuses below describe executed evidence and explicit limits. The public 0.4.2 release remained healthy overnight at the start of this continuation. Earlier audits are historical where superseded.

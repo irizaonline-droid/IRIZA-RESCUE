@@ -21,3 +21,7 @@ No unfinished request is silently treated as completed. See CURRENT_CAPABILITIES
 | Demo video/submission, license/brand decision | Not completed | Requires actual submission scope and owner license choice; not implied by a software repair request |
 
 The real current path is import → inspect → rank errors → live Muse change → exact sandbox approval → source checks → authorized independent runtime verification → export. Customer PR/hosting release stays unavailable until its missing connections and implementations exist. No merge/deploy happens automatically.
+
+## November 2 RESCUE 4.0 work
+
+See ENGINEERING_UPGRADE_AUDIT.md for the complete new phase register and current classifications. Delivered locally: real saved-file statistics/reports, metadata-only project environments, nested explorer/preferences and reviewed original restore. Generic isolated customer runtime and staging release are still unresolved dependencies; a passing maintained fixture is not substituted for either.

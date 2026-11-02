@@ -289,3 +289,30 @@ Run vulnerability audit after importing source. OSV queries exact versions from 
 The optional Vercel Sandbox adapter requires RESCUE_VERCEL_TOKEN, RESCUE_VERCEL_TEAM_ID and RESCUE_VERCEL_PROJECT_ID on the server. Credential values never go into the VM. Each run requires explicit upload consent. The bounded public GitHub test plan installs dependencies with registry-restricted egress, disables networking for tests, records exits/logs for the exact source digest and stops the temporary VM. npm install hooks are disabled. The VM uses one vCPU, no exposed ports, nonpersistent storage and a five-minute timeout. Source test changes are flagged. Successful commands are not blanket proof of repair or permission to release.
 
 The assistant connector's actual creation attempt was denied with HTTP 403; that connection does not configure the application's own credential. No customer runtime test succeeded during this update. cPanel/DirectAdmin/Vercel production terminals, Git push and deployment need separate authorized adapters and remain unavailable.
+
+---
+
+# Code changes and engineering reports
+
+1. Open Projects, then open your imported project.
+2. Edit a file in Sandbox editor and use Save file or Ctrl+S. Unsaved drafts are separate from saved changes.
+3. Open Changes & reports and select Refresh statistics. Counts compare saved files with the imported originals. Large unrelated changes can exceed the bounded alignment budget; unavailable line counts are disclosed.
+4. Inspect changed paths, hashes, language/directory counts, revision and real recorded timeline. A saved edit is not a commit, tested fix or deployment.
+5. Download JSON or Markdown. Reports omit source bodies, environment values and raw model/runtime output.
+6. To restore a file, save/discard its draft, choose Restore imported file and review the diff. Restore this file requires the exact current hash/version and creates a new reversible saved version.
+7. Editor preferences change font, wrapping and minimap in this browser. Formatter actions work only for languages with a registered Monaco provider. This is not a full project LSP or debugger.
+
+Customer runtime and deployment remain separate gates. Passing maintained fixture tests cannot certify an arbitrary imported application.
+
+---
+
+# Plan project environment requirements
+
+1. Open your project and select Environments.
+2. Inspect requirements to find supported lexical environment references with paths and lines. References can include comments/strings; required/optional status is unknown.
+3. Select Import .env names and choose a stage and a synthetic environment file below 64 KB.
+4. Confirm the metadata-only scope. Values are sent to this server for parsing and discarded; they are not stored, revealed, exported, sent to Meta or injected into a sandbox.
+5. Inspect duplicate names, referenced-but-undeclared names, declared-but-unreferenced names and unsafe public secret-shaped names.
+6. Re-import to replace the selected stage's metadata. Stale versions are rejected; refresh first. Clear metadata removes that stage's names while advancing its version.
+
+Supported parsing is single-line dotenv assignments, optional export, comments and quoted values. No interpolation, shell expansion or multiline-value semantics are executed. A managed secret store and sandbox injection are not connected. Planning profiles never make a deployment ready.
