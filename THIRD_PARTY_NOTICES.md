@@ -15,3 +15,9 @@ Versions below were read from installed package manifests. The lockfile and npm 
 | esbuild | 0.28.2 | MIT |
 
 Monaco assets are generated with npm run build:editor. A build-time adapter attaches the server CSP nonce to dynamic theme styles; upstream library source is not edited in node_modules. The DOMPurify override resolves the advisories reported during installation. npm audit results are in local artifacts.
+
+## Scope of the root license
+
+The owner authorized MIT licensing for original RESCUE code on 4 November 2026. The root license does not relicense third-party dependencies, the IRIZA logo/brand/trademarks, supplied reference books, customer source, or generated media. Public logo use identifies this project; no trademark rights are granted. Owner asserts use of the existing brand; independent chain-of-title verification is not available here.
+
+`public/mulish.woff2` is accompanied by `public/FONT-LICENSE.txt`; retain that upstream font license. Generated editor bundles retain upstream notices. No customer uploads, databases or credentials belong in the public source distribution. A dependency's manifest license is inventory evidence, not a complete legal clearance of every transitive asset.

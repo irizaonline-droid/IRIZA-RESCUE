@@ -1,4 +1,4 @@
-# IRIZA RESCUE — Engineering Studio 0.4.0
+# IRIZA RESCUE — Engineering Studio 0.5.0
 
 Winning Team. Import a project, inspect source, investigate evidence, review a patch and verify what actually changed. Domain: **rescue.iriza.online**.
 
@@ -26,7 +26,7 @@ Open http://127.0.0.1:4310/. Onboarding leads to independent RESCUE sign-in/regi
 1. Projects → Add project → Upload a project ZIP (8 MB maximum). The import form offers a maintained checkout example. Public GitHub import and hosting-operator local import also remain available.
 2. Source intelligence indexes declarations/imports and reports coverage, Python AST availability and restricted TypeScript diagnostics. Search returns actual source locations.
 3. Sandbox editor uses Monaco with line numbers, code highlighting, folding, find/replace, tabs, persistent drafts, conflict checks, history and diff review.
-4. Engineering agent offers ten focused modes over six permission-scoped read-only tools. Source disclosure to Meta requires explicit consent. Tool events, model requests and results are persisted; cancellation and budgets are enforced.
+4. Engineering agent offers Full-stack Expert and ten focused modes over six permission-scoped read-only tools. Source disclosure to Meta requires explicit consent. Tool events, model requests and results are persisted; cancellation and budgets are enforced.
 5. AI fix generates a selected-file proposal. Review the side-by-side diff, then explicitly approve. Only copied source changes; failed static validation rolls it back.
 6. Runtime & release exports an engineering receipt. The maintained arithmetic fixture has an exact-version verifier with real failing baseline/passing corrected tests. It is labelled as a trusted fixture test, not a generic customer sandbox.
 7. Arbitrary customer tests require a configured, authorized remote Vercel Sandbox. Only the exact reviewed snapshot is uploaded; no customer code runs on the primary server. Missing credentials keep the action disabled.
@@ -54,3 +54,11 @@ GitHub App enrollment/private checkout, full project LSP/debugger, semantic call
 Original trusted sample health recovery remains available in Sample recovery lab. Its local processes and synthetic orders are explicitly separate from customer systems.
 
 Monaco assets are generated rather than stored as large Git blobs. Deployment archives must include the built `public/monaco` directory. Package versions/licenses and the CSP build adapter are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Credentials, SQLite data, private deployment state and evaluation artifacts are ignored by Git.
+
+## Current release and submission evidence
+
+See [docs/STUDIO_050.md](docs/STUDIO_050.md) for the connected Code Studio and measured limitations. Source and deployed release may differ; inspect `/healthz` and the submission handoff for the exact deployed identifier. The maintained fixture is not generic customer verification.
+
+## License
+
+Original RESCUE code is MIT licensed. Brand assets, fonts and dependencies retain separate rights as explained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
