@@ -16,7 +16,7 @@ Date: 2026-11-04. Scope: RESCUE only, Node.js stack and existing database/auth r
 
 | Capability | Result | Evidence |
 |---|---|---|
-| Automated regression suite | PASS | npm test: 91 passed; artifacts/studio-05/tests-initial.txt |
+| Automated regression suite | PASS | npm test: 92 passed; artifacts/studio-05/tests-initial.txt |
 | Module syntax | PASS | npm run check: 100 modules |
 | Editor build | PASS | npm run build:editor, five same-origin workers |
 | Live Muse investigation | PASS | Synthetic 5-file checkout fixture, muse-spark-1.3, 5 provider requests, 27 persisted events |
@@ -43,3 +43,5 @@ Browser journey used an isolated synthetic QA account and data under artifacts/s
 ## Release safety
 
 Publish only RESCUE to rescue.iriza.online after checks. Back up tenant SQLite databases, preserve production environment except release ID, verify exact release health/auth/asset hashes and record retention. Retain rollback release. IRIZA TASTE files, environment, database, authentication and service are outside this upgrade.
+
+Final hosted QA correction: preserve measured TypeScript checked/eligible counts in new validation receipts; older receipts without coverage display not recorded. Regression test executes a real one-file TypeScript check and verifies persistence.

@@ -3,7 +3,7 @@ import ts from 'typescript';import path from 'node:path';
 import {sourceIntelligence} from './source-intelligence.mjs';
 
 function typeDiagnostics(files){
- const eligible=files.filter(f=>/\.(?:ts|tsx|mts|cts)$/.test(f.path));let used=0;const selected=eligible.filter(f=>{if(used+Buffer.byteLength(f.content)>524288)return false;used+=Buffer.byteLength(f.content);return true;}).slice(0,32);if(!selected.length)return {status:'NOT_APPLICABLE',results:[]};
+ const eligible=files.filter(f=>/\.(?:ts|tsx|mts|cts)$/.test(f.path));let used=0;const selected=eligible.filter(f=>{if(used+Buffer.byteLength(f.content)>524288)return false;used+=Buffer.byteLength(f.content);return true;}).slice(0,32);if(!selected.length)return {status:'NOT_APPLICABLE',results:[],filesChecked:0,eligibleFiles:eligible.length};
  const options={noEmit:true,noResolve:true,strict:true,target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,skipLibCheck:true,jsx:ts.JsxEmit.Preserve,types:[]};
  const virtualRoot=path.resolve('rescue-virtual-source'),normalize=p=>path.resolve(p).replaceAll('\\','/'),virtual=new Map(files.map(f=>[normalize(path.join(virtualRoot,f.path)),f.content]));
  const library=normalize(path.dirname(ts.getDefaultLibFilePath(options))),host=ts.createCompilerHost(options);
