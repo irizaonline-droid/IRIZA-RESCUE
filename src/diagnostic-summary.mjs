@@ -1,0 +1,11 @@
+// Group recorded tool observations; an absent or stale run can never become a pass.
+export function diagnosticSummary(project){
+ const v=project.validation,revision=project.workspaceRevision||0;
+ const results=[...(v?.syntax?.results||[]).map(r=>({...r,tool:'Python AST'})),...(v?.javascript?.results||[]).map(r=>({...r,tool:'Node syntax'})),...(v?.typescript?.results||[]).map(r=>({...r,tool:'TypeScript'})),...(v?.json||[]).map(r=>({...r,tool:'JSON parser'}))];
+ const seen=new Set(),findings=[];
+ for(const r of results){if(!['FAIL','UNRESOLVED_ENVIRONMENT','UNAVAILABLE'].includes(r.status))continue;const id=[r.path,r.line||0,r.code||'',r.message||'',r.tool].join('|');if(seen.has(id))continue;seen.add(id);findings.push({path:r.path,line:r.line||1,code:r.code||null,tool:r.tool,message:r.message||'Tool unavailable',category:r.status==='FAIL'?'SOURCE_ERROR':r.status==='UNRESOLVED_ENVIRONMENT'?'ENVIRONMENT_GAP':'TOOL_UNAVAILABLE'});}
+ findings.sort((a,b)=>['SOURCE_ERROR','ENVIRONMENT_GAP','TOOL_UNAVAILABLE'].indexOf(a.category)-['SOURCE_ERROR','ENVIRONMENT_GAP','TOOL_UNAVAILABLE'].indexOf(b.category)||String(a.path||'').localeCompare(String(b.path||''))||a.line-b.line);
+ const fresh=!!v&&v.workspaceRevision===revision;
+ const current=result=>result?.workspaceRevision===revision;
+ return {workspaceRevision:revision,checkedRevision:v?.workspaceRevision??null,fresh,status:!v?'NOT_RUN':!fresh?'STALE':v.status,recordedAt:v?.at||null,sourceErrors:findings.filter(f=>f.category==='SOURCE_ERROR').length,environmentGaps:findings.filter(f=>f.category==='ENVIRONMENT_GAP').length,unavailableTools:findings.filter(f=>f.category==='TOOL_UNAVAILABLE').length,recordedChecks:results.length,passedChecks:results.filter(r=>r.status==='PASS').length,typescriptCoverage:{checked:v?.typescript?.filesChecked||0,eligible:v?.typescript?.eligibleFiles||0},findings,runtime:current(project.runtimeReceipt)?project.runtimeReceipt.status:'NOT_RUN',dependencyAudit:current(project.vulnerabilityAudit)?project.vulnerabilityAudit.status:'NOT_RUN',note:'Counts describe recorded checks only. Environment gaps require dependencies/configuration; they are not confirmed application defects. Runtime execution and dependency auditing are separate checks.'};
+}

@@ -17,6 +17,6 @@ window.createRescueEditor=(parent,source,path,onChange)=>{
 };
 window.createRescueDiff=(parent,original,modified,path)=>{
  const a=monaco.editor.createModel(original,language(path)),b=monaco.editor.createModel(modified,language(path));
- const editor=monaco.editor.createDiffEditor(parent,{theme:theme(),automaticLayout:true,readOnly:true,originalEditable:false,renderSideBySide:true,scrollBeyondLastLine:false});editor.setModel({original:a,modified:b});return {destroy(){editor.dispose();a.dispose();b.dispose();}};
+ const editor=monaco.editor.createDiffEditor(parent,{theme:theme(),automaticLayout:true,readOnly:true,originalEditable:false,renderSideBySide:parent.clientWidth>=700,enableSplitViewResizing:true,renderOverviewRuler:false,scrollBeyondLastLine:false});editor.setModel({original:a,modified:b});return {layout(sideBySide){editor.updateOptions({renderSideBySide:sideBySide});},destroy(){editor.dispose();a.dispose();b.dispose();}};
 };
 

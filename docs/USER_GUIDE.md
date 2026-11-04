@@ -1,5 +1,21 @@
 # IRIZA RESCUE · Complete local user guide
 
+# Code Studio
+1. Open a project and choose Code Studio. Select a source file in Explorer. Changes affect its imported sandbox copy only.
+2. Load models to discover models available to this server credential. Choose a model and supported reasoning effort, then Save model. Listing a model does not prove successful inference.
+3. Choose Full-stack Expert or another engineering mode. Describe the expected result, actual result and reproduction. Explicitly allow the relevant source to be sent to Meta, then Send to Muse.
+4. Follow actual tool events and source references. Cancel stops a running investigation. Follow-up context is limited to the same project and saved revision; a source change starts a fresh context.
+5. Choose Prepare code fix for the selected file. Confirm the source transmission. Muse can decline when the evidence does not justify a change.
+6. Open Changes. Inspect the line-numbered red removals and green additions, exact counts, rationale and risks. Use Unified on a narrow screen or Split on a wide screen.
+7. Approve & apply to sandbox applies only the exact, unexpired version-bound patch and reruns source checks. Rejection preserves source. Failed checks can roll the edit back.
+8. Open Problems or Scan Center. Filter confirmed source errors separately from environment gaps and unavailable tools. Check revision freshness and coverage.
+9. Open Tests & release for independent execution evidence. The maintained checkout fixture has its own before/after test; customer runtime needs an authorized isolated runner.
+10. Open Report or Reports to export saved changes, verification and Git patches. No investigation, source check or fixture result authorizes a customer merge or deployment.
+
+Full-stack Expert can inspect frontend, API, service and database source using bounded read-only tools. It cannot see missing files, execute a terminal, approve itself or prove that every error is fixed. Read the reported limitations before release.
+
+---
+
 # Your easiest repair path
 1. Open your project, then Sandbox editor. Select Import & prepare source if your repository source has not been copied yet. Website-only projects must attach their matching source first.
 2. Select Find & repair errors. RESCUE collects source diagnostics and ranks repairable files automatically. You do not need to type an error description for detected failures.

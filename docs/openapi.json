@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "IRIZA RESCUE Sandbox Studio API",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "description": "Account-scoped engineering workspaces. Domain: rescue.iriza.online. No automatic merge/deploy or primary-host customer-code execution."
   },
   "servers": [
@@ -3600,6 +3600,15 @@
                 "type": "object",
                 "properties": {
                   "mode": {
+                    "type": "string",
+                    "description": "Includes fullstack: 6 model steps, 14 tool calls, high reasoning."
+                  },
+                  "previousJobId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Same project and workspace revision only."
+                  },
+                  "selectedPath": {
                     "type": "string"
                   },
                   "question": {
@@ -4141,6 +4150,139 @@
             "description": "Markdown is returned as an object with a markdown string."
           }
         ]
+      }
+    },
+    "/projects/{key}/diagnostics": {
+      "get": {
+        "summary": "Grouped recorded diagnostics, revision freshness, source errors and environment gaps; no code execution",
+        "description": "Required credential: authenticated-workspace.",
+        "x-credential-scope": "authenticated-workspace",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/projects/{key}/review": {
+      "get": {
+        "summary": "Imported original, saved source, exact change counts and matching pending proposal",
+        "description": "Required credential: authenticated-workspace.",
+        "x-credential-scope": "authenticated-workspace",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/projects/{key}/reject": {
+      "post": {
+        "summary": "Reject exact pending proposal without editing source",
+        "description": "Required credential: authenticated-workspace.",
+        "x-credential-scope": "authenticated-workspace",
+        "responses": {
+          "200": {
+            "description": "Operation completed; inspect state, gate, and test outcomes rather than treating HTTP success as a passed test."
+          },
+          "400": {
+            "description": "Invalid input, resource limit, stale approval or invalid lifecycle transition"
+          },
+          "401": {
+            "description": "Missing, expired or invalid bearer token"
+          },
+          "403": {
+            "description": "Insufficient scope or rejected origin/host"
+          },
+          "404": {
+            "description": "Unknown API route"
+          }
+        },
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "proposalId": {
+                    "type": "string"
+                  },
+                  "digest": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "proposalId",
+                  "digest"
+                ],
+                "maxProperties": 12
+              }
+            }
+          }
+        }
       }
     },
     "/projects/{key}/environment-metadata": {
